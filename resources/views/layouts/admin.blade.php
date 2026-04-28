@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>Cmlink Admin</title>
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/admin.css') }}">
 </head>
+
 <body>
 
     @include('layouts.partials.sidebar')
@@ -21,31 +23,10 @@
         </div>
     </div>
 
-   <script>
-document.addEventListener('DOMContentLoaded', function () {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    const sidebar = document.getElementById('adminSidebar');
-    const mainContent = document.getElementById('mainContent');
-    const toggleSidebarBtn = document.getElementById('toggleSidebar');
-
-    if (!sidebar || !mainContent || !toggleSidebarBtn) {
-        console.log('Un élément manque (sidebar, mainContent ou bouton)');
-        return;
-    }
-
-    toggleSidebarBtn.addEventListener('click', function () {
-        console.log('CLICK OK');
-
-        if (window.innerWidth <= 992) {
-            sidebar.classList.toggle('show');
-        } else {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-        }
-    });
-
-});
-</script>
+    <script src="{{ asset('assets/js/admin.js') }}"></script>
 
 </body>
+
 </html>

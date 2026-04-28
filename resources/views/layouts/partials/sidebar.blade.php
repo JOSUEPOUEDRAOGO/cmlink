@@ -1,6 +1,6 @@
 <div class="admin-sidebar" id="adminSidebar">
     <div class="sidebar-top">
-        <div class="brand-box">
+        <div class="brand-box" id="sidebarToggle">
             <div class="brand-icon">C</div>
             <div class="brand-text">
                 <h4>Cmlink</h4>
@@ -9,8 +9,6 @@
         </div>
 
         <ul class="sidebar-menu">
-
-            {{-- Dashboard --}}
             <li>
                 <a href="{{ route('admin.dashboard') }}"
                    class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -19,7 +17,6 @@
                 </a>
             </li>
 
-            {{-- Étudiants --}}
             <li>
                 <a href="{{ route('admin.etudiants.index') }}"
                    class="{{ request()->routeIs('admin.etudiants.*') ? 'active' : '' }}">
@@ -28,7 +25,6 @@
                 </a>
             </li>
 
-            {{-- Entreprises --}}
             <li>
                 <a href="{{ route('admin.entreprises.index') }}"
                    class="{{ request()->routeIs('admin.entreprises.*') ? 'active' : '' }}">
@@ -37,7 +33,6 @@
                 </a>
             </li>
 
-            {{-- Offres --}}
             <li>
                 <a href="{{ route('admin.offres.index') }}"
                    class="{{ request()->routeIs('admin.offres.*') ? 'active' : '' }}">
@@ -46,7 +41,6 @@
                 </a>
             </li>
 
-            {{-- Candidatures --}}
             <li>
                 <a href="{{ route('admin.candidatures.index') }}"
                    class="{{ request()->routeIs('admin.candidatures.*') ? 'active' : '' }}">
@@ -55,7 +49,6 @@
                 </a>
             </li>
 
-            {{-- Catégories --}}
             <li>
                 <a href="{{ route('admin.categories.index') }}"
                    class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
@@ -64,7 +57,6 @@
                 </a>
             </li>
 
-            {{-- Filières --}}
             <li>
                 <a href="{{ route('admin.filieres.index') }}"
                    class="{{ request()->routeIs('admin.filieres.*') ? 'active' : '' }}">
@@ -73,7 +65,6 @@
                 </a>
             </li>
 
-            {{-- Messages --}}
             <li>
                 <a href="{{ route('admin.messages.index') }}"
                    class="{{ request()->routeIs('admin.messages.*') ? 'active' : '' }}">
@@ -82,7 +73,6 @@
                 </a>
             </li>
 
-            {{-- Signalements --}}
             <li>
                 <a href="{{ route('admin.signalements.index') }}"
                    class="{{ request()->routeIs('admin.signalements.*') ? 'active' : '' }}">
@@ -91,7 +81,6 @@
                 </a>
             </li>
 
-            {{-- Statistiques --}}
             <li>
                 <a href="{{ route('admin.statistiques.index') }}"
                    class="{{ request()->routeIs('admin.statistiques.*') ? 'active' : '' }}">
@@ -100,7 +89,38 @@
                 </a>
             </li>
 
-            {{-- Paramètres --}}
+            <li class="sidebar-dropdown {{ request()->routeIs('admin.pages.*') ? 'open' : '' }}">
+                <button type="button" class="sidebar-link sidebar-dropdown-toggle">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span>Pages</span>
+                    <i class="bi bi-chevron-down dropdown-arrow"></i>
+                </button>
+
+                <ul class="submenu">
+                    <li>
+                        <a href="{{ route('admin.pages.home') }}"
+                           class="{{ request()->routeIs('admin.pages.home') ? 'active' : '' }}">
+                            <i class="bi bi-house"></i>
+                            <span>Accueil</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#">
+                            <i class="bi bi-briefcase"></i>
+                            <span>Offres</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#">
+                            <i class="bi bi-layout-text-window"></i>
+                            <span>Footer</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li>
                 <a href="{{ route('admin.parametres.index') }}"
                    class="{{ request()->routeIs('admin.parametres.*') ? 'active' : '' }}">
@@ -108,7 +128,6 @@
                     <span>Paramètres</span>
                 </a>
             </li>
-
         </ul>
     </div>
 

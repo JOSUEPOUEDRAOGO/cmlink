@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\Communication\MessageController;
 use App\Http\Controllers\Admin\Admin\ParametreController;
 use App\Http\Controllers\Admin\Admin\SignalementController;
 use App\Http\Controllers\Admin\StatistiqueController;
+use App\Http\Controllers\Admin\PageController;
+
 
 Route::prefix('admin')
     ->name('admin.')
@@ -27,9 +29,15 @@ Route::prefix('admin')
         Route::resource('entreprises', EntrepriseController::class);
         Route::resource('offres', OffreController::class);
         Route::resource('candidatures', CandidatureController::class);
-        Route::resource('categories', CategorieController::class);
+        Route::resource('categories', CategorieController::class)
+            ->parameters([
+                'categories' => 'categorie',
+            ]);
         Route::resource('messages', MessageController::class);
         Route::resource('parametres', ParametreController::class);
         Route::resource('signalements', SignalementController::class);
         Route::get('statistiques', [StatistiqueController::class, 'index'])->name('statistiques.index');
+
+        Route::get('pages/home', [PageController::class, 'home'])->name('pages.home');
+        Route::post('pages/home', [PageController::class, 'updateHome'])->name('pages.home.update');
     });
