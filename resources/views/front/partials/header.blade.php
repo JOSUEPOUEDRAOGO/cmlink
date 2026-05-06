@@ -31,14 +31,32 @@
                     </div>
                 </div>
 
-                <a href="#">Étudiants</a>
-                <a href="#">Entreprises</a>
+                <a href="{{ route('front.etudiants.index') }}">Étudiants</a>
+                <a href="{{ route('front.entreprises.index') }}">Entreprises</a>
 
                 @auth
-                    <a href="{{ route('admin.dashboard') }}" class="btn-outline">Dashboard</a>
+                    @role('admin')
+                        <a href="{{ route('admin.dashboard') }}" class="btn-outline">Admin</a>
+                    @endrole
+
+                    @role('entreprise')
+                        <a href="{{ route('admin.offres.index') }}" class="btn-outline">Espace entreprise</a>
+                    @endrole
+
+                    @role('etudiant')
+                        <a href="{{ route('front.offres.index') }}" class="btn-outline">Mes opportunités</a>
+                    @endrole
+
+                    <form action="{{ route('logout') }}" method="POST" class="logout-form">
+                        @csrf
+                        <button type="submit" class="btn-primary">
+                            Déconnexion
+                        </button>
+                    </form>
                 @else
                     <a href="{{ route('login') }}" class="btn-outline">Connexion</a>
-                    <a href="{{ route('register') }}" class="btn-primary">S'inscrire</a>
+                    <a href="{{ route('register', ['type' => 'etudiant']) }}" class="btn-primary">Étudiant</a>
+                    <a href="{{ route('register', ['type' => 'entreprise']) }}" class="btn-outline">Entreprise</a>
                 @endauth
             </nav>
         </div>

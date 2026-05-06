@@ -28,6 +28,7 @@ class EntrepriseRequest extends FormRequest
         $entrepriseId = is_object($entreprise) ? $entreprise->id : $entreprise;
 
         return [
+            'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'nom' => ['required', 'string', 'max:150'],
             'email' => [
                 'required',

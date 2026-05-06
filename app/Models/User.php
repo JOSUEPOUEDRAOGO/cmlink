@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,42 +11,58 @@ use Spatie\Permission\Traits\HasPermissions;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-    use HasRoles;
-    use HasPermissions;
+    use HasFactory, Notifiable, HasRoles, HasPermissions;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'account_type',   // 🔥 ajouté
+        'status',         // 🔥 ajouté
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // 🔥 RELATIONS
+    public function etudiant()
+    {
+        return $this->hasOne(\App\Models\Academique\Etudiant::class);
+    }
+
+    public function entreprise()
+    {
+        return $this->hasOne(\App\Models\Entreprise\Entreprise::class);
+    }
+
+    // 🔥 HELPERS
+    public function isAdmin(): bool
+    {
+        return $this->account_type === 'admin';
+    }
+
+    public function isEtudiant(): bool
+    {
+        return $this->account_type === 'etudiant';
+    }
+
+    public function isEntreprise(): bool
+    {
+        return $this->account_type === 'entreprise';
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'actif';
     }
 }

@@ -2,8 +2,7 @@
 
 namespace App\Models\Entreprise;
 
-use App\Models\Communication\Message;
-use App\Models\Admin\Signalement;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,24 +11,19 @@ class Entreprise extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',   // 🔥 important
         'nom',
         'email',
         'telephone',
         'adresse',
     ];
 
-    public function offres()
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+     public function offres()
     {
         return $this->hasMany(Offre::class);
-    }
-
-    public function messages()
-    {
-        return $this->hasMany(Message::class);
-    }
-
-    public function signalements()
-    {
-        return $this->hasMany(Signalement::class);
     }
 }

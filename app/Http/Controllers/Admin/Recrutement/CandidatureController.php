@@ -3,61 +3,46 @@
 namespace App\Http\Controllers\Admin\Recrutement;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Recrutement\CandidatureRequest;
-use App\Models\Academique\Etudiant;
-use App\Models\Entreprise\Offre;
 use App\Models\Recrutement\Candidature;
+use Illuminate\Http\Request;
 
 class CandidatureController extends Controller
 {
     public function index()
     {
-        $candidatures = Candidature::with('etudiant.filiere', 'offre.entreprise')
+        $candidatures = Candidature::with([
+                'etudiant.filiere',
+                'offre.entreprise',
+                'offre.categorie',
+            ])
             ->latest()
             ->paginate(15);
 
         return view('admin.candidatures.index', compact('candidatures'));
     }
 
-    public function create()
-    {
-        $etudiants = Etudiant::orderBy('prenom')->orderBy('nom')->get();
-        $offres = Offre::with('entreprise')->latest()->get();
-
-        return view('admin.candidatures.create', compact('etudiants', 'offres'));
-    }
-
-    public function store(CandidatureRequest $request)
-    {
-        Candidature::create($request->validated());
-
-        return redirect()
-            ->route('admin.candidatures.index')
-            ->with('success', 'Candidature créée avec succès.');
-    }
-
     public function show(Candidature $candidature)
     {
-        $candidature->load('etudiant.filiere', 'offre.entreprise', 'offre.categorie');
+        $candidature->load([
+            'etudiant.filiere',
+            'offre.entreprise',
+            'offre.categorie',
+        ]);
 
         return view('admin.candidatures.show', compact('candidature'));
     }
 
-    public function edit(Candidature $candidature)
+    public function updateStatus(Request $request, Candidature $candidature)
     {
-        $etudiants = Etudiant::orderBy('prenom')->orderBy('nom')->get();
-        $offres = Offre::with('entreprise')->latest()->get();
+        $validated = $request->validate([
+            'statut' => ['required', 'in:en_attente,accepte,refuse'],
+        ]);
 
-        return view('admin.candidatures.edit', compact('candidature', 'etudiants', 'offres'));
-    }
+        $candidature->update([
+            'statut' => $validated['statut'],
+        ]);
 
-    public function update(CandidatureRequest $request, Candidature $candidature)
-    {
-        $candidature->update($request->validated());
-
-        return redirect()
-            ->route('admin.candidatures.index')
-            ->with('success', 'Candidature mise à jour avec succès.');
+        return back()->with('success', 'Statut de la candidature mis à jour avec succès.');
     }
 
     public function destroy(Candidature $candidature)

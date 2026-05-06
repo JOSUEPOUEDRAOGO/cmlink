@@ -6,21 +6,12 @@ use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\OffreFrontController;
 use App\Http\Controllers\Front\EntrepriseFrontController;
 use App\Http\Controllers\Front\EtudiantFrontController;
+use App\Http\Controllers\Front\CandidatureController;
 
 Route::get('/', [HomeController::class, 'index'])->name('front.home');
 
 Route::get('/offres', [OffreFrontController::class, 'index'])->name('front.offres.index');
 Route::get('/offres/{offre}', [OffreFrontController::class, 'show'])->name('front.offres.show');
-
-Route::get('/dashboard', function () {
-    return redirect()->route('admin.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
 Route::get('/entreprises', [EntrepriseFrontController::class, 'index'])->name('front.entreprises.index');
 Route::get('/entreprises/{entreprise}', [EntrepriseFrontController::class, 'show'])->name('front.entreprises.show');
@@ -28,5 +19,40 @@ Route::get('/entreprises/{entreprise}', [EntrepriseFrontController::class, 'show
 Route::get('/etudiants', [EtudiantFrontController::class, 'index'])->name('front.etudiants.index');
 Route::get('/etudiants/{etudiant}', [EtudiantFrontController::class, 'show'])->name('front.etudiants.show');
 
-require __DIR__.'/admin.php';
+Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    if ($user->hasRole('admin')) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    if ($user->hasRole('entreprise')) {
+        return redirect()->route('admin.offres.index');
+    }
+
+    if ($user->hasRole('etudiant')) {
+        return redirect()->route('front.offres.index');
+    }
+
+    return redirect()->route('front.home');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'role:etudiant|admin'])->group(function () {
+    Route::get('/offres/{offre}/postuler', [CandidatureController::class, 'create'])
+        ->name('front.offres.apply');
+
+    Route::post('/offres/{offre}/postuler', [CandidatureController::class, 'store'])
+        ->name('front.offres.postuler');
+});
+
 require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';
+require __DIR__.'/users.php';
+require __DIR__.'/roles.php';
+require __DIR__.'/sanctions.php';

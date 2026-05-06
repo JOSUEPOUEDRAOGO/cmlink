@@ -15,8 +15,6 @@ class CandidatureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'etudiant_id' => ['required', 'integer', 'exists:etudiants,id'],
-            'offre_id' => ['required', 'integer', 'exists:offres,id'],
             'statut' => ['required', Rule::in(['en_attente', 'accepte', 'refuse'])],
         ];
     }

@@ -13,15 +13,33 @@
 
             <ul class="benefit-list">
                 @for($i = 1; $i <= 3; $i++)
-                    <li>
-                        ✓ {{ $pageContent['audience']["student_benefit_{$i}"] ?? '' }}
-                    </li>
+                    @php
+                        $benefit = $pageContent['audience']["student_benefit_{$i}"] ?? null;
+                    @endphp
+
+                    @if(!empty($benefit))
+                        <li>✓ {{ $benefit }}</li>
+                    @endif
                 @endfor
             </ul>
 
-            <a href="{{ route('register') }}" class="btn-primary">
-                {{ $pageContent['audience']['student_button'] ?? "S'inscrire en tant qu'étudiant" }}
-            </a>
+            <div class="audience-actions">
+                @guest
+                    <a href="{{ route('register', ['type' => 'etudiant']) }}" class="btn-primary">
+                        {{ $pageContent['audience']['student_button'] ?? "S'inscrire en tant qu'étudiant" }}
+                    </a>
+                @else
+                    @if(auth()->user()->hasRole('admin'))
+                        <a href="{{ route('admin.dashboard') }}" class="btn-primary">
+                            Aller au dashboard admin
+                        </a>
+                    @else
+                        <a href="{{ route('front.offres.index') }}" class="btn-primary">
+                            Voir les offres
+                        </a>
+                    @endif
+                @endguest
+            </div>
 
             <div class="stats">
                 <div class="stat-item">
@@ -48,15 +66,33 @@
 
             <ul class="benefit-list">
                 @for($i = 1; $i <= 3; $i++)
-                    <li>
-                        ✓ {{ $pageContent['audience']["company_benefit_{$i}"] ?? '' }}
-                    </li>
+                    @php
+                        $benefit = $pageContent['audience']["company_benefit_{$i}"] ?? null;
+                    @endphp
+
+                    @if(!empty($benefit))
+                        <li>✓ {{ $benefit }}</li>
+                    @endif
                 @endfor
             </ul>
 
-            <a href="{{ route('register') }}" class="btn-outline">
-                {{ $pageContent['audience']['company_button'] ?? "Rejoindre en tant qu'entreprise →" }}
-            </a>
+            <div class="audience-actions">
+                @guest
+                    <a href="{{ route('register', ['type' => 'entreprise']) }}" class="btn-outline">
+                        {{ $pageContent['audience']['company_button'] ?? "Rejoindre en tant qu'entreprise →" }}
+                    </a>
+                @else
+                    @if(auth()->user()->hasRole('admin'))
+                        <a href="{{ route('admin.dashboard') }}" class="btn-outline">
+                            Aller au dashboard admin →
+                        </a>
+                    @else
+                        <a href="{{ route('front.offres.index') }}" class="btn-outline">
+                            Découvrir la plateforme →
+                        </a>
+                    @endif
+                @endguest
+            </div>
 
             <div class="stats">
                 <div class="stat-item">
@@ -65,6 +101,5 @@
                 </div>
             </div>
         </div>
-
     </div>
 </section>

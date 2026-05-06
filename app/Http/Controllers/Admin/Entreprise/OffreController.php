@@ -12,16 +12,22 @@ class OffreController extends Controller
 {
     public function index()
     {
-        $offres = Offre::with('entreprise', 'categorie')
-            ->latest()
-            ->paginate(15);
+        $query = Offre::with(['entreprise', 'categorie']);
+
+        if (auth()->user()->account_type === 'entreprise') {
+            $query->whereHas('entreprise', function ($q) {
+                $q->where('user_id', auth()->id());
+            });
+        }
+
+        $offres = $query->latest()->paginate(15);
 
         return view('admin.offres.index', compact('offres'));
     }
 
     public function create()
     {
-        $entreprises = Entreprise::orderBy('nom')->get();
+        $entreprises = $this->getAllowedEntreprises();
         $categories = Categorie::orderBy('nom')->get();
 
         return view('admin.offres.create', compact('entreprises', 'categories'));
@@ -38,14 +44,22 @@ class OffreController extends Controller
 
     public function show(Offre $offre)
     {
-        $offre->load('entreprise', 'categorie', 'candidatures.etudiant');
+        $this->authorizeEntrepriseAccess($offre);
+
+        $offre->load([
+            'entreprise',
+            'categorie',
+            'candidatures.etudiant',
+        ]);
 
         return view('admin.offres.show', compact('offre'));
     }
 
     public function edit(Offre $offre)
     {
-        $entreprises = Entreprise::orderBy('nom')->get();
+        $this->authorizeEntrepriseAccess($offre);
+
+        $entreprises = $this->getAllowedEntreprises();
         $categories = Categorie::orderBy('nom')->get();
 
         return view('admin.offres.edit', compact('offre', 'entreprises', 'categories'));
@@ -53,6 +67,8 @@ class OffreController extends Controller
 
     public function update(OffreRequest $request, Offre $offre)
     {
+        $this->authorizeEntrepriseAccess($offre);
+
         $offre->update($request->validated());
 
         return redirect()
@@ -62,10 +78,36 @@ class OffreController extends Controller
 
     public function destroy(Offre $offre)
     {
+        $this->authorizeEntrepriseAccess($offre);
+
         $offre->delete();
 
         return redirect()
             ->route('admin.offres.index')
             ->with('success', 'Offre supprimée avec succès.');
+    }
+
+    private function getAllowedEntreprises()
+    {
+        if (auth()->user()->account_type === 'entreprise') {
+            return Entreprise::where('user_id', auth()->id())
+                ->orderBy('nom')
+                ->get();
+        }
+
+        return Entreprise::orderBy('nom')->get();
+    }
+
+    private function authorizeEntrepriseAccess(Offre $offre): void
+    {
+        if (auth()->user()->account_type !== 'entreprise') {
+            return;
+        }
+
+        $offre->loadMissing('entreprise');
+
+        if (!$offre->entreprise || $offre->entreprise->user_id !== auth()->id()) {
+            abort(403, "Vous n'avez pas accès à cette offre.");
+        }
     }
 }

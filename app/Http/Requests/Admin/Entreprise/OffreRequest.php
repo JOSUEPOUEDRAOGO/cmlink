@@ -21,18 +21,27 @@ class OffreRequest extends FormRequest
         ]);
     }
 
-    public function rules(): array
-    {
-        return [
-            'titre' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'type' => ['required', Rule::in(['stage', 'emploi'])],
-            'entreprise_id' => ['required', 'integer', 'exists:entreprises,id'],
-            'categorie_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'localisation' => ['nullable', 'string', 'max:150'],
-            'date_expiration' => ['nullable', 'date', 'after_or_equal:today'],
-        ];
+   public function rules(): array
+{
+    $user = $this->user();
+
+    $entrepriseRule = ['required', 'integer', 'exists:entreprises,id'];
+
+    if ($user && $user->account_type === 'entreprise') {
+        $entrepriseRule[] = Rule::exists('entreprises', 'id')
+            ->where('user_id', $user->id);
     }
+
+    return [
+        'titre' => ['required', 'string', 'max:255'],
+        'description' => ['required', 'string'],
+        'type' => ['required', Rule::in(['stage', 'emploi'])],
+        'entreprise_id' => $entrepriseRule,
+        'categorie_id' => ['nullable', 'integer', 'exists:categories,id'],
+        'localisation' => ['nullable', 'string', 'max:150'],
+        'date_expiration' => ['nullable', 'date', 'after_or_equal:today'],
+    ];
+}
 
     public function messages(): array
     {

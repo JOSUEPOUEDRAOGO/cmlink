@@ -28,6 +28,7 @@ class EtudiantRequest extends FormRequest
         $etudiantId = is_object($etudiant) ? $etudiant->id : $etudiant;
 
         return [
+            'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'nom' => ['required', 'string', 'max:100'],
             'prenom' => ['required', 'string', 'max:100'],
             'email' => [

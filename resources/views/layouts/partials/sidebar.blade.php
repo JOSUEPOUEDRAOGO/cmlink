@@ -9,125 +9,193 @@
         </div>
 
         <ul class="sidebar-menu">
-            <li>
-                <a href="{{ route('admin.dashboard') }}"
-                   class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Tableau de bord</span>
-                </a>
-            </li>
 
-            <li>
-                <a href="{{ route('admin.etudiants.index') }}"
-                   class="{{ request()->routeIs('admin.etudiants.*') ? 'active' : '' }}">
-                    <i class="bi bi-people"></i>
-                    <span>Étudiants</span>
-                </a>
-            </li>
+            @can('view admin dashboard')
+                <li>
+                    <a href="{{ route('admin.dashboard') }}"
+                       class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Tableau de bord</span>
+                    </a>
+                </li>
+            @endcan
 
-            <li>
-                <a href="{{ route('admin.entreprises.index') }}"
-                   class="{{ request()->routeIs('admin.entreprises.*') ? 'active' : '' }}">
-                    <i class="bi bi-building"></i>
-                    <span>Entreprises</span>
-                </a>
-            </li>
+            @if(auth()->user()->can('manage users') || auth()->user()->can('manage roles') || auth()->user()->can('manage sanctions'))
+                <li class="sidebar-dropdown {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*') || request()->routeIs('admin.sanctions.*') ? 'open' : '' }}">
+                    <button type="button" class="sidebar-link sidebar-dropdown-toggle">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Administration</span>
+                        <i class="bi bi-chevron-down dropdown-arrow"></i>
+                    </button>
 
-            <li>
-                <a href="{{ route('admin.offres.index') }}"
-                   class="{{ request()->routeIs('admin.offres.*') ? 'active' : '' }}">
-                    <i class="bi bi-briefcase"></i>
-                    <span>Offres</span>
-                </a>
-            </li>
+                    <ul class="submenu">
+                        @can('manage users')
+                            <li>
+                                <a href="{{ route('admin.users.index') }}"
+                                   class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                                    <i class="bi bi-people"></i>
+                                    <span>Utilisateurs</span>
+                                </a>
+                            </li>
+                        @endcan
 
-            <li>
-                <a href="{{ route('admin.candidatures.index') }}"
-                   class="{{ request()->routeIs('admin.candidatures.*') ? 'active' : '' }}">
-                    <i class="bi bi-send"></i>
-                    <span>Candidatures</span>
-                </a>
-            </li>
+                        @can('manage roles')
+                            <li>
+                                <a href="{{ route('admin.roles.index') }}"
+                                   class="{{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                                    <i class="bi bi-key"></i>
+                                    <span>Rôles & accès</span>
+                                </a>
+                            </li>
+                        @endcan
 
-            <li>
-                <a href="{{ route('admin.categories.index') }}"
-                   class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                    <i class="bi bi-funnel"></i>
-                    <span>Catégories</span>
-                </a>
-            </li>
+                        @can('manage sanctions')
+                            <li>
+                                <a href="{{ route('admin.sanctions.index') }}"
+                                   class="{{ request()->routeIs('admin.sanctions.*') ? 'active' : '' }}">
+                                    <i class="bi bi-exclamation-octagon"></i>
+                                    <span>Sanctions</span>
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
+                </li>
+            @endif
 
-            <li>
-                <a href="{{ route('admin.filieres.index') }}"
-                   class="{{ request()->routeIs('admin.filieres.*') ? 'active' : '' }}">
-                    <i class="bi bi-diagram-3"></i>
-                    <span>Filières</span>
-                </a>
-            </li>
+            @can('manage etudiants')
+                <li>
+                    <a href="{{ route('admin.etudiants.index') }}"
+                       class="{{ request()->routeIs('admin.etudiants.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i>
+                        <span>Étudiants</span>
+                    </a>
+                </li>
+            @endcan
 
-            <li>
-                <a href="{{ route('admin.messages.index') }}"
-                   class="{{ request()->routeIs('admin.messages.*') ? 'active' : '' }}">
-                    <i class="bi bi-chat-left"></i>
-                    <span>Messages</span>
-                </a>
-            </li>
+            @can('manage entreprises')
+                <li>
+                    <a href="{{ route('admin.entreprises.index') }}"
+                       class="{{ request()->routeIs('admin.entreprises.*') ? 'active' : '' }}">
+                        <i class="bi bi-building"></i>
+                        <span>Entreprises</span>
+                    </a>
+                </li>
+            @endcan
 
-            <li>
-                <a href="{{ route('admin.signalements.index') }}"
-                   class="{{ request()->routeIs('admin.signalements.*') ? 'active' : '' }}">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    <span>Signalements</span>
-                </a>
-            </li>
+            @can('manage offres')
+                <li>
+                    <a href="{{ route('admin.offres.index') }}"
+                       class="{{ request()->routeIs('admin.offres.*') ? 'active' : '' }}">
+                        <i class="bi bi-briefcase"></i>
+                        <span>Offres</span>
+                    </a>
+                </li>
+            @endcan
 
-            <li>
-                <a href="{{ route('admin.statistiques.index') }}"
-                   class="{{ request()->routeIs('admin.statistiques.*') ? 'active' : '' }}">
-                    <i class="bi bi-graph-up-arrow"></i>
-                    <span>Statistiques</span>
-                </a>
-            </li>
+            @can('manage candidatures')
+                <li>
+                    <a href="{{ route('admin.candidatures.index') }}"
+                       class="{{ request()->routeIs('admin.candidatures.*') ? 'active' : '' }}">
+                        <i class="bi bi-send"></i>
+                        <span>Candidatures</span>
+                    </a>
+                </li>
+            @endcan
 
-            <li class="sidebar-dropdown {{ request()->routeIs('admin.pages.*') ? 'open' : '' }}">
-                <button type="button" class="sidebar-link sidebar-dropdown-toggle">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span>Pages</span>
-                    <i class="bi bi-chevron-down dropdown-arrow"></i>
-                </button>
+            @can('manage categories')
+                <li>
+                    <a href="{{ route('admin.categories.index') }}"
+                       class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                        <i class="bi bi-funnel"></i>
+                        <span>Catégories</span>
+                    </a>
+                </li>
+            @endcan
 
-                <ul class="submenu">
-                    <li>
-                        <a href="{{ route('admin.pages.home') }}"
-                           class="{{ request()->routeIs('admin.pages.home') ? 'active' : '' }}">
-                            <i class="bi bi-house"></i>
-                            <span>Accueil</span>
-                        </a>
-                    </li>
+            @can('manage filieres')
+                <li>
+                    <a href="{{ route('admin.filieres.index') }}"
+                       class="{{ request()->routeIs('admin.filieres.*') ? 'active' : '' }}">
+                        <i class="bi bi-diagram-3"></i>
+                        <span>Filières</span>
+                    </a>
+                </li>
+            @endcan
 
-                    <li>
-                        <a href="#">
-                            <i class="bi bi-briefcase"></i>
-                            <span>Offres</span>
-                        </a>
-                    </li>
+            @can('manage messages')
+                <li>
+                    <a href="{{ route('admin.messages.index') }}"
+                       class="{{ request()->routeIs('admin.messages.*') ? 'active' : '' }}">
+                        <i class="bi bi-chat-left"></i>
+                        <span>Messages</span>
+                    </a>
+                </li>
+            @endcan
 
-                    <li>
-                        <a href="#">
-                            <i class="bi bi-layout-text-window"></i>
-                            <span>Footer</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
+            @can('manage signalements')
+                <li>
+                    <a href="{{ route('admin.signalements.index') }}"
+                       class="{{ request()->routeIs('admin.signalements.*') ? 'active' : '' }}">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>Signalements</span>
+                    </a>
+                </li>
+            @endcan
 
-            <li>
-                <a href="{{ route('admin.parametres.index') }}"
-                   class="{{ request()->routeIs('admin.parametres.*') ? 'active' : '' }}">
-                    <i class="bi bi-gear"></i>
-                    <span>Paramètres</span>
-                </a>
-            </li>
+            @can('manage statistiques')
+                <li>
+                    <a href="{{ route('admin.statistiques.index') }}"
+                       class="{{ request()->routeIs('admin.statistiques.*') ? 'active' : '' }}">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Statistiques</span>
+                    </a>
+                </li>
+            @endcan
+
+            @can('manage pages')
+                <li class="sidebar-dropdown {{ request()->routeIs('admin.pages.*') ? 'open' : '' }}">
+                    <button type="button" class="sidebar-link sidebar-dropdown-toggle">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Pages</span>
+                        <i class="bi bi-chevron-down dropdown-arrow"></i>
+                    </button>
+
+                    <ul class="submenu">
+                        <li>
+                            <a href="{{ route('admin.pages.home') }}"
+                               class="{{ request()->routeIs('admin.pages.home') ? 'active' : '' }}">
+                                <i class="bi bi-house"></i>
+                                <span>Accueil</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-briefcase"></i>
+                                <span>Offres</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="bi bi-layout-text-window"></i>
+                                <span>Footer</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            @endcan
+
+            @can('manage parametres')
+                <li>
+                    <a href="{{ route('admin.parametres.index') }}"
+                       class="{{ request()->routeIs('admin.parametres.*') ? 'active' : '' }}">
+                        <i class="bi bi-gear"></i>
+                        <span>Paramètres</span>
+                    </a>
+                </li>
+            @endcan
+
         </ul>
     </div>
 

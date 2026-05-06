@@ -15,6 +15,13 @@ class Candidature extends Model
         'etudiant_id',
         'offre_id',
         'statut',
+
+        // 🔥 nouveaux champs
+        'nom',
+        'email',
+        'telephone',
+        'message',
+        'cv_path',
     ];
 
     public function etudiant()
