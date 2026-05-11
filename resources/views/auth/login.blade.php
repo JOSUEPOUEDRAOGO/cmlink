@@ -2,7 +2,8 @@
     <div class="auth-page">
         <div class="auth-card auth-card-small">
             <div class="auth-brand">
-                <h1>Cmlink</h1>
+                {{-- Logo au lieu du texte --}}
+                <img src="{{ asset('assets/img/cmlink.png') }}" alt="Cmlink Logo" class="auth-logo">
                 <p>Connexion à votre espace</p>
             </div>
 

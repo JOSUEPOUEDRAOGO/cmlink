@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountCreatedMail;
 use App\Models\User;
 use App\Models\Academique\Etudiant;
 use App\Models\Entreprise\Entreprise;
@@ -12,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -100,6 +102,8 @@ class RegisteredUserController extends Controller
         }
 
         event(new Registered($user));
+
+        Mail::to($user->email)->send(new AccountCreatedMail($user));
 
         Auth::login($user);
 

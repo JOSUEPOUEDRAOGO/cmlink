@@ -2,30 +2,49 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
-        return [
+        $user = $this->user();
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
-            ],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'bio' => ['nullable', 'string', 'max:1000'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'telephone' => ['nullable', 'string', 'max:20'],
+        ];
+
+        if ($user->account_type === 'etudiant') {
+            $rules['nom'] = ['nullable', 'string', 'max:100'];
+            $rules['prenom'] = ['nullable', 'string', 'max:100'];
+            $rules['filiere_id'] = ['nullable', 'exists:filieres,id'];
+        }
+
+        if ($user->account_type === 'entreprise') {
+            $rules['nom_entreprise'] = ['nullable', 'string', 'max:255'];
+            $rules['adresse'] = ['nullable', 'string', 'max:500'];
+        }
+
+        return $rules;
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Le nom complet est requis.',
+            'email.required' => 'L\'adresse email est requise.',
+            'email.unique' => 'Cet email est déjà utilisé.',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+            'password.confirmed' => 'La confirmation ne correspond pas.',
         ];
     }
 }

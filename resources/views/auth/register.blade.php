@@ -2,7 +2,8 @@
     <div class="auth-page">
         <div class="auth-card">
             <div class="auth-brand">
-                <h1>Cmlink</h1>
+                {{-- Logo au lieu du texte --}}
+                <img src="{{ asset('assets/img/cmlink.png') }}" alt="Cmlink Logo" class="auth-logo">
                 <p>
                     @if($type === 'entreprise')
                         Créez votre espace entreprise
@@ -12,6 +13,7 @@
                 </p>
             </div>
 
+            <!-- le reste du formulaire inchangé -->
             <div class="auth-switch">
                 <a href="{{ route('register', ['type' => 'etudiant']) }}"
                    class="{{ $type === 'etudiant' ? 'active' : '' }}">

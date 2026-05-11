@@ -1,26 +1,37 @@
 <header class="front-header">
     <div class="container">
         <div class="front-navbar">
-            <a href="{{ route('front.home') }}" class="logo">Cmlink</a>
 
-            <button type="button" class="mobile-menu-btn" id="frontMenuToggle">
+            <a href="{{ route('front.home') }}" class="logo">
+                <img src="{{ asset('assets/img/cmlink.png') }}" alt="Cmlink Logo">
+            </a>
+            <button type="button" class="mobile-menu-btn" id="frontMenuToggle" aria-label="Ouvrir le menu"
+                aria-controls="frontNavLinks" aria-expanded="false">
                 <i class="bi bi-list"></i>
             </button>
 
             <nav class="nav-links" id="frontNavLinks">
-                <a href="{{ route('front.offres.index') }}">Offres</a>
+
+                <a href="{{ route('front.offres.index') }}">
+                    Offres
+                </a>
 
                 <div class="nav-dropdown">
-                    <button type="button" class="nav-dropdown-btn">
+                    <button type="button" class="nav-dropdown-btn" aria-expanded="false">
                         Catégories <span>⌄</span>
                     </button>
 
                     <div class="nav-dropdown-menu">
+
                         @if (isset($frontCategories) && $frontCategories->count())
+
                             @foreach ($frontCategories as $categorie)
                                 <a href="{{ route('front.offres.index', ['categorie' => $categorie->id]) }}">
                                     {{ $categorie->nom }}
-                                    <small>{{ $categorie->offres_count ?? 0 }} offres</small>
+
+                                    <small>
+                                        {{ $categorie->offres_count ?? 0 }} offres
+                                    </small>
                                 </a>
                             @endforeach
                         @else
@@ -30,33 +41,48 @@
                         @endif
                     </div>
                 </div>
+                <a href="{{ route('front.etudiants.index') }}">
+                    Étudiants
+                </a>
 
-                <a href="{{ route('front.etudiants.index') }}">Étudiants</a>
-                <a href="{{ route('front.entreprises.index') }}">Entreprises</a>
+                <a href="{{ route('front.entreprises.index') }}">
+                    Entreprises
+                </a>
 
                 @auth
+
                     @role('admin')
-                        <a href="{{ route('admin.dashboard') }}" class="btn-outline">Admin</a>
+                        <a href="{{ route('admin.dashboard') }}" class="btn-outline">
+                            Dashboard
+                        </a>
                     @endrole
 
                     @role('entreprise')
-                        <a href="{{ route('admin.offres.index') }}" class="btn-outline">Espace entreprise</a>
+                        <a href="{{ route('admin.offres.index') }}" class="btn-outline">
+                            Espace entreprise
+                        </a>
                     @endrole
 
                     @role('etudiant')
-                        <a href="{{ route('front.offres.index') }}" class="btn-outline">Mes opportunités</a>
+                        <a href="{{ route('front.offres.index') }}" class="btn-outline">
+                            Mes opportunités
+                        </a>
                     @endrole
 
                     <form action="{{ route('logout') }}" method="POST" class="logout-form">
                         @csrf
+
                         <button type="submit" class="btn-primary">
                             Déconnexion
                         </button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="btn-outline">Connexion</a>
-                    <a href="{{ route('register', ['type' => 'etudiant']) }}" class="btn-primary">Étudiant</a>
-                    <a href="{{ route('register', ['type' => 'entreprise']) }}" class="btn-outline">Entreprise</a>
+                    <a href="{{ route('login') }}" class="btn-outline">
+                        Connexion
+                    </a>
+                    <a href="{{ route('register') }}" class="text-color:primary" >
+                        S'inscrire
+                    </a>
                 @endauth
             </nav>
         </div>
