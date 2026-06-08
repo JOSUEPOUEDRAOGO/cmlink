@@ -26,4 +26,9 @@ class Entreprise extends Model
     {
         return $this->hasMany(Offre::class);
     }
+
+    public function conversations()
+{
+    return $this->hasMany(\App\Models\Messagerie\Conversation::class);
+}
 }

@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Traits\HasPermissions;
 
+
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles, HasPermissions;
@@ -61,4 +63,6 @@ class User extends Authenticatable
     {
         return $this->status === 'actif';
     }
+
+
 }

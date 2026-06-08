@@ -7,6 +7,9 @@ use App\Http\Controllers\Front\OffreFrontController;
 use App\Http\Controllers\Front\EntrepriseFrontController;
 use App\Http\Controllers\Front\EtudiantFrontController;
 use App\Http\Controllers\Front\CandidatureController;
+use Illuminate\Support\Facades\Auth;
+
+$user = Auth::user();
 
 Route::get('/', [HomeController::class, 'index'])->name('front.home');
 
@@ -57,3 +60,5 @@ require __DIR__.'/admin.php';
 require __DIR__.'/users.php';
 require __DIR__.'/roles.php';
 require __DIR__.'/sanctions.php';
+require __DIR__ . '/candidatures.php';
+require __DIR__.'/publics.php';

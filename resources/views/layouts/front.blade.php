@@ -18,12 +18,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
 
 
-    <link rel="stylesheet" href="https://wontedly-melanic-cleora.ngrok-free.dev/assets/css/front.css?v=999">
-<link rel="stylesheet" href="https://wontedly-melanic-cleora.ngrok-free.dev/assets/css/front-header.css?v=999">
-
+  
     {{-- CSS Front --}}
-    {{-- <link rel="stylesheet" href="{{ asset('assets/css/front.css') }}?v={{ filemtime(public_path('assets/css/front.css')) }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/front-header.css') }}?v={{ filemtime(public_path('assets/css/front-header.css')) }}"> --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/front.css') }}?v={{ filemtime(public_path('assets/css/front.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/front-header.css') }}?v={{ filemtime(public_path('assets/css/front-header.css')) }}">
 </head>
 
 <body>

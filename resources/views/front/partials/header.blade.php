@@ -64,14 +64,13 @@
                     @endrole
 
                     @role('etudiant')
-                        <a href="{{ route('front.offres.index') }}" class="btn-outline">
-                            Mes opportunités
+                        <a href="{{ route('admin.mes-candidatures.index') }}" class="btn-outline">
+                            Mon espace
                         </a>
                     @endrole
 
                     <form action="{{ route('logout') }}" method="POST" class="logout-form">
                         @csrf
-
                         <button type="submit" class="btn-primary">
                             Déconnexion
                         </button>
@@ -80,7 +79,7 @@
                     <a href="{{ route('login') }}" class="btn-outline">
                         Connexion
                     </a>
-                    <a href="{{ route('register') }}" class="text-color:primary" >
+                    <a href="{{ route('register') }}" class="text-color:primary">
                         S'inscrire
                     </a>
                 @endauth
