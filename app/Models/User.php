@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Traits\HasPermissions;
+use App\Models\AlerteOffre;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
 
@@ -64,5 +66,11 @@ class User extends Authenticatable
         return $this->status === 'actif';
     }
 
+
+
+public function alerteOffre(): HasOne
+{
+    return $this->hasOne(AlerteOffre::class);
+}
 
 }

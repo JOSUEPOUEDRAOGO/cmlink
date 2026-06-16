@@ -12,35 +12,77 @@ use Illuminate\Support\Facades\Mail;
 
 class CandidatureController extends Controller
 {
-    public function index()
-    {
-        $user = Auth::user();
+   public function index(Request $request)
+{
+    $user = Auth::user();
 
-        $query = Candidature::with([
-            'etudiant.filiere',
-            'offre.entreprise',
-            'offre.categorie',
-        ]);
+    $query = Candidature::with([
+        'etudiant.filiere',
+        'offre.entreprise',
+        'offre.categorie',
+        'lettre',
+    ]);
 
-        if ($user->account_type === 'entreprise') {
-            $entreprise = Entreprise::where('user_id', $user->id)->first();
+    if ($user->account_type === 'entreprise') {
+        $entreprise = Entreprise::where('user_id', $user->id)->first();
 
-            if (!$entreprise) {
-                return redirect()
-                    ->route('admin.entreprises.index')
-                    ->with('warning', 'Veuillez compléter votre profil entreprise pour voir vos candidatures.');
-            }
-
-            $query->whereHas('offre', function ($q) use ($entreprise) {
-                $q->where('entreprise_id', $entreprise->id);
-            });
+        if (!$entreprise) {
+            return redirect()
+                ->route('admin.entreprises.index')
+                ->with('warning', 'Veuillez compléter votre profil entreprise.');
         }
 
-        $candidatures = $query->latest()->paginate(15);
-
-        return view('admin.candidatures.index', compact('candidatures'));
+        $query->whereHas('offre', function ($q) use ($entreprise) {
+            $q->where('entreprise_id', $entreprise->id);
+        });
     }
 
+    // Filtre recherche
+    if ($request->filled('q')) {
+        $q = $request->q;
+        $query->where(function ($sub) use ($q) {
+            $sub->where('nom', 'like', "%{$q}%")
+                ->orWhere('email', 'like', "%{$q}%")
+                ->orWhereHas('offre', fn($o) => $o->where('titre', 'like', "%{$q}%"))
+                ->orWhereHas('etudiant', fn($e) =>
+                    $e->where('nom', 'like', "%{$q}%")
+                      ->orWhere('prenom', 'like', "%{$q}%")
+                );
+        });
+    }
+
+    // Filtre statut
+    if ($request->filled('statut')) {
+        $query->where('statut', $request->statut);
+    }
+
+    // Filtre période
+    if ($request->filled('periode')) {
+        match ($request->periode) {
+            'today' => $query->whereDate('created_at', today()),
+            'week'  => $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]),
+            'month' => $query->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year),
+            default => null,
+        };
+    }
+
+    $candidatures = $query->latest()->paginate(15)->withQueryString();
+
+    // Stats pour les cards
+    $statsQuery = Candidature::query();
+    if ($user->account_type === 'entreprise') {
+        $entreprise = Entreprise::where('user_id', $user->id)->first();
+        $statsQuery->whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id));
+    }
+
+    $statsStatuts = $statsQuery
+        ->selectRaw('statut, count(*) as total')
+        ->groupBy('statut')
+        ->pluck('total', 'statut')
+        ->toArray();
+
+    return view('admin.candidatures.index', compact('candidatures', 'statsStatuts'));
+}
     public function show(Candidature $candidature)
     {
         $this->authorizeCandidatureAccess($candidature);

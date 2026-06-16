@@ -15,4 +15,6 @@ Route::middleware(['auth', 'role:admin|entreprise'])
 
         Route::get('/profils-publics/{etudiant}/lettre', [PublicProfileController::class, 'viewLettre'])
             ->name('profils-publics.lettre');
+        Route::patch('profils-publics/{etudiant}/toggle-lettre', [PublicProfileController::class, 'toggleLettre'])
+            ->name('profils-publics.toggle-lettre'); // ← plus de "admin." ici
     });

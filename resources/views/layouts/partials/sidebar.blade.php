@@ -4,7 +4,6 @@
         {{-- Brand --}}
         <div class="brand-box" id="sidebarToggle">
             <div class="brand-icon">C</div>
-
             <div class="brand-text">
                 <h4>Cmlink</h4>
                 <span>Administration</span>
@@ -29,19 +28,13 @@
             @if (auth()->user()->can('manage users') ||
                     auth()->user()->can('manage roles') ||
                     auth()->user()->can('manage sanctions'))
-                <li
-                    class="sidebar-dropdown {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*') || request()->routeIs('admin.sanctions.*') ? 'open' : '' }}">
-
+                <li class="sidebar-dropdown {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*') || request()->routeIs('admin.sanctions.*') ? 'open' : '' }}">
                     <button type="button" class="sidebar-link sidebar-dropdown-toggle">
                         <i class="bi bi-shield-lock"></i>
-
                         <span>Administration</span>
-
                         <i class="bi bi-chevron-down dropdown-arrow"></i>
                     </button>
-
                     <ul class="submenu">
-
                         @can('manage users')
                             <li>
                                 <a href="{{ route('admin.users.index') }}"
@@ -51,7 +44,6 @@
                                 </a>
                             </li>
                         @endcan
-
                         @can('manage roles')
                             <li>
                                 <a href="{{ route('admin.roles.index') }}"
@@ -61,7 +53,6 @@
                                 </a>
                             </li>
                         @endcan
-
                         @can('manage sanctions')
                             <li>
                                 <a href="{{ route('admin.sanctions.index') }}"
@@ -71,7 +62,6 @@
                                 </a>
                             </li>
                         @endcan
-
                     </ul>
                 </li>
             @endif
@@ -109,25 +99,27 @@
                 </li>
             @endcan
 
-            {{-- Mes candidatures --}}
+            {{-- Compétences --}}
+            @can('manage etudiants')
+                <li>
+                    <a href="{{ route('admin.competences.index') }}"
+                        class="{{ request()->routeIs('admin.competences.*') ? 'active' : '' }}">
+                        <i class="bi bi-patch-check"></i>
+                        <span>Compétences</span>
+                    </a>
+                </li>
+            @endcan
 
+            {{-- Mes postulations (étudiant uniquement) --}}
             @auth
-                @if (auth()->user()->account_type === 'etudiant' || auth()->user()->account_type === 'admin')
+                @if (auth()->user()->account_type === 'etudiant')
                     <li class="sidebar-dropdown {{ request()->routeIs('admin.mes-candidatures.*') ? 'open' : '' }}">
-
                         <button type="button" class="sidebar-link sidebar-dropdown-toggle">
                             <i class="bi bi-folder2-open"></i>
-
-                            <span>
-                                {{ auth()->user()->account_type === 'admin' ? 'postulés' : 'postulations' }}
-                            </span>
-
+                            <span>Mes postulations</span>
                             <i class="bi bi-chevron-down dropdown-arrow"></i>
                         </button>
-
                         <ul class="submenu">
-
-                            {{-- Toutes les candidatures --}}
                             <li>
                                 <a href="{{ route('admin.mes-candidatures.index') }}"
                                     class="{{ request()->routeIs('admin.mes-candidatures.index') ? 'active' : '' }}">
@@ -135,8 +127,6 @@
                                     <span>Toutes mes candidatures</span>
                                 </a>
                             </li>
-
-                            {{-- CV --}}
                             <li>
                                 <a href="{{ route('admin.mes-candidatures.cv') }}"
                                     class="{{ request()->routeIs('admin.mes-candidatures.cv') ? 'active' : '' }}">
@@ -144,8 +134,6 @@
                                     <span>Mes CV</span>
                                 </a>
                             </li>
-
-                            {{-- Lettres de motivation --}}
                             <li>
                                 <a href="{{ route('admin.mes-candidatures.motivations') }}"
                                     class="{{ request()->routeIs('admin.mes-candidatures.motivations') ? 'active' : '' }}">
@@ -153,26 +141,27 @@
                                     <span>Mes motivations</span>
                                 </a>
                             </li>
-
-                            {{-- Acceptées --}}
+                            <li>
+                                <a href="{{ route('admin.favoris.index') }}"
+                                    class="{{ request()->routeIs('admin.favoris.*') ? 'active' : '' }}">
+                                    <i class="bi bi-bookmark-heart"></i>
+                                    <span>Offres sauvegardées</span>
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ route('admin.mes-candidatures.acceptees') }}"
                                     class="{{ request()->routeIs('admin.mes-candidatures.acceptees') ? 'active' : '' }}">
                                     <i class="bi bi-patch-check"></i>
-                                    <span>Candidatures acceptées</span>
+                                    <span>Acceptées</span>
                                 </a>
                             </li>
-
-                            {{-- Refusées --}}
                             <li>
                                 <a href="{{ route('admin.mes-candidatures.refusees') }}"
                                     class="{{ request()->routeIs('admin.mes-candidatures.refusees') ? 'active' : '' }}">
                                     <i class="bi bi-x-circle"></i>
-                                    <span>Candidatures refusées</span>
+                                    <span>Refusées</span>
                                 </a>
                             </li>
-
-                            {{-- En attente --}}
                             <li>
                                 <a href="{{ route('admin.mes-candidatures.attente') }}"
                                     class="{{ request()->routeIs('admin.mes-candidatures.attente') ? 'active' : '' }}">
@@ -180,14 +169,12 @@
                                     <span>En attente</span>
                                 </a>
                             </li>
-
                         </ul>
                     </li>
                 @endif
             @endauth
 
-
-            {{-- Candidatures --}}
+            {{-- Candidatures reçues (admin + entreprise) --}}
             @can('manage candidatures')
                 <li>
                     <a href="{{ route('admin.candidatures.index') }}"
@@ -198,12 +185,23 @@
                 </li>
             @endcan
 
-            {{-- Profils publics (talents visibles) --}}
+            {{-- Entretiens --}}
+            @can('manage candidatures')
+                <li>
+                    <a href="{{ route('admin.entretiens.index') }}"
+                        class="{{ request()->routeIs('admin.entretiens.*') ? 'active' : '' }}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span>Entretiens</span>
+                    </a>
+                </li>
+            @endcan
+
+            {{-- Profils publics (admin + entreprise) --}}
             @role('admin|entreprise')
                 <li>
                     <a href="{{ route('admin.profils-publics.index') }}"
                         class="{{ request()->routeIs('admin.profils-publics.*') ? 'active' : '' }}">
-                        <i class="bi bi-people"></i>
+                        <i class="bi bi-person-lines-fill"></i>
                         <span>Profils publics</span>
                     </a>
                 </li>
@@ -267,17 +265,12 @@
             {{-- Pages --}}
             @can('manage pages')
                 <li class="sidebar-dropdown {{ request()->routeIs('admin.pages.*') ? 'open' : '' }}">
-
                     <button type="button" class="sidebar-link sidebar-dropdown-toggle">
                         <i class="bi bi-file-earmark-text"></i>
-
                         <span>Pages</span>
-
                         <i class="bi bi-chevron-down dropdown-arrow"></i>
                     </button>
-
                     <ul class="submenu">
-
                         <li>
                             <a href="{{ route('admin.pages.home') }}"
                                 class="{{ request()->routeIs('admin.pages.home') ? 'active' : '' }}">
@@ -285,21 +278,18 @@
                                 <span>Accueil</span>
                             </a>
                         </li>
-
                         <li>
                             <a href="#">
                                 <i class="bi bi-briefcase"></i>
                                 <span>Offres</span>
                             </a>
                         </li>
-
                         <li>
                             <a href="#">
                                 <i class="bi bi-layout-text-window"></i>
                                 <span>Footer</span>
                             </a>
                         </li>
-
                     </ul>
                 </li>
             @endcan
@@ -320,15 +310,12 @@
 
     {{-- Bottom --}}
     <div class="sidebar-bottom">
-
         <div class="platform-status">
             <h6>Statut de la plateforme</h6>
-
             <div class="status-line">
                 <span class="status-dot"></span>
                 <span>En ligne</span>
             </div>
         </div>
-
     </div>
 </div>

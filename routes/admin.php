@@ -5,7 +5,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Academique\EtudiantController;
 use App\Http\Controllers\Admin\Academique\FiliereController;
 use App\Http\Controllers\Admin\Entreprise\EntrepriseController;
-use App\Http\Controllers\Admin\Entreprise\OffreController;
+use App\Http\Controllers\Admin\Entreprise\OffreController as EntrepriseOffreController;
+use App\Http\Controllers\Admin\OffreController as AdminOffreController;
 use App\Http\Controllers\Admin\Recrutement\CandidatureController;
 use App\Http\Controllers\Admin\Referentiel\CategorieController;
 use App\Http\Controllers\Admin\Communication\MessageController;
@@ -13,13 +14,18 @@ use App\Http\Controllers\Admin\Admin\ParametreController;
 use App\Http\Controllers\Admin\Admin\SignalementController;
 use App\Http\Controllers\Admin\StatistiqueController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\CompetenceController;
+use App\Http\Controllers\Admin\EntretienController;
+use App\Http\Controllers\Admin\FavoriController;
+use App\Http\Controllers\Admin\PublicProfileController;
+use App\Http\Controllers\Admin\MonProfilController;
 
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'role:admin|entreprise'])
+    ->middleware(['auth', 'role:admin|entreprise|etudiant']) // ← ajouter etudiant ici
     ->group(function () {
 
-        // Dashboard - Réservé aux admins uniquement
+        // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->middleware('role:admin')
             ->name('dashboard');
@@ -30,37 +36,30 @@ Route::prefix('admin')
         |--------------------------------------------------------------------------
         */
         Route::middleware('role:admin')->group(function () {
-            // Gestion des étudiants
             Route::resource('etudiants', EtudiantController::class);
-
-            // Gestion des filières
             Route::resource('filieres', FiliereController::class);
-
-            // Gestion des entreprises (admin voit toutes les entreprises)
             Route::resource('entreprises', EntrepriseController::class);
-
-            // Gestion des catégories
             Route::resource('categories', CategorieController::class)
                 ->parameters(['categories' => 'categorie']);
-
-            // Gestion des messages
             Route::resource('messages', MessageController::class);
-
-            // Paramètres généraux
-            Route::resource('parametres', ParametreController::class);
-
-            // Signalements
+            // Remplacer Route::resource('parametres', ParametreController::class) par :
+            Route::get('parametres', [ParametreController::class, 'index'])
+                ->name('parametres.index');
+            Route::post('parametres', [ParametreController::class, 'update'])
+                ->name('parametres.update');
+            Route::post('parametres/maintenance', [ParametreController::class, 'toggleMaintenance'])
+                ->name('parametres.maintenance');
             Route::resource('signalements', SignalementController::class);
 
-            // Statistiques
             Route::get('statistiques', [StatistiqueController::class, 'index'])
                 ->name('statistiques.index');
 
-            // Pages statiques
             Route::get('pages/home', [PageController::class, 'home'])
                 ->name('pages.home');
             Route::post('pages/home', [PageController::class, 'updateHome'])
                 ->name('pages.home.update');
+
+            Route::resource('competences', CompetenceController::class);
         });
 
         /*
@@ -68,89 +67,89 @@ Route::prefix('admin')
         | Routes accessibles aux ADMIN et ENTREPRISE
         |--------------------------------------------------------------------------
         */
+        Route::middleware('role:admin|entreprise')->group(function () {
 
-        // ROUTES POUR LES OFFRES (avec protection spécifique)
-        // Index - Liste des offres (filtrée automatiquement dans le contrôleur)
-        Route::get('offres', [OffreController::class, 'index'])
-            ->name('offres.index');
+            // Offres
+            Route::get('offres', [AdminOffreController::class, 'index'])->name('offres.index');
+            Route::get('offres/create', [AdminOffreController::class, 'create'])->name('offres.create');
+            Route::post('offres', [AdminOffreController::class, 'store'])->name('offres.store');
 
-        // Create - Formulaire de création
-        Route::get('offres/create', [OffreController::class, 'create'])
-            ->name('offres.create');
+            Route::middleware(['check.offre.access'])->group(function () {
+                Route::get('offres/{offre}', [AdminOffreController::class, 'show'])->name('offres.show');
+                Route::get('offres/{offre}/edit', [AdminOffreController::class, 'edit'])->name('offres.edit');
+                Route::put('offres/{offre}', [AdminOffreController::class, 'update'])->name('offres.update');
+                Route::patch('offres/{offre}', [AdminOffreController::class, 'update'])->name('offres.update.patch');
+                Route::delete('offres/{offre}', [AdminOffreController::class, 'destroy'])->name('offres.destroy');
+                Route::post('offres/{offre}/duplicate', [EntrepriseOffreController::class, 'duplicate'])->name('offres.duplicate');
+                Route::patch('offres/{offre}/status/{status}', [EntrepriseOffreController::class, 'changeStatus'])->name('offres.status');
+                Route::post('offres/{offre}/reset-views', [EntrepriseOffreController::class, 'resetViews'])->name('offres.reset-views');
+            });
 
-        // Store - Enregistrement d'une nouvelle offre
-        Route::post('offres', [OffreController::class, 'store'])
-            ->name('offres.store');
+            // Candidatures
+            Route::prefix('candidatures')
+                ->name('candidatures.')
+                ->controller(CandidatureController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/export', 'export')->name('export');
+                    Route::get('/stats', 'stats')->name('stats');
 
-        // Routes PROTÉGÉES par le middleware check.offre.access
-        // Ces routes vérifient que l'entreprise possède bien l'offre
-        Route::middleware(['check.offre.access'])->group(function () {
-            // Show - Détails d'une offre
-            Route::get('offres/{offre}', [OffreController::class, 'show'])
-                ->name('offres.show');
+                    Route::middleware(['check.candidature.access'])->group(function () {
+                        Route::get('{candidature}', 'show')->name('show');
+                        Route::get('{candidature}/cv', 'downloadCv')->name('download-cv');
+                        Route::get('{candidature}/history', 'history')->name('history');
+                        Route::patch('{candidature}/status', 'updateStatus')->name('status');
+                        Route::delete('{candidature}', 'destroy')->name('destroy');
+                        Route::post('{candidature}/accept', 'accept')->name('accept');
+                        Route::post('{candidature}/reject', 'reject')->name('reject');
+                        Route::post('{candidature}/pending', 'pending')->name('pending');
+                        Route::post('{candidature}/note', 'addNote')->name('add-note');
+                    });
+                });
 
-            // Edit - Formulaire d'édition
-            Route::get('offres/{offre}/edit', [OffreController::class, 'edit'])
-                ->name('offres.edit');
-
-            // Update - Mise à jour
-            Route::put('offres/{offre}', [OffreController::class, 'update'])
-                ->name('offres.update');
-            Route::patch('offres/{offre}', [OffreController::class, 'update'])
-                ->name('offres.update.patch');
-
-            // Destroy - Suppression
-            Route::delete('offres/{offre}', [OffreController::class, 'destroy'])
-                ->name('offres.destroy');
-
-            // Duplicate - Duplication d'une offre
-            Route::post('offres/{offre}/duplicate', [OffreController::class, 'duplicate'])
-                ->name('offres.duplicate');
-
-            // Change Status - Changer le statut
-            Route::patch('offres/{offre}/status/{status}', [OffreController::class, 'changeStatus'])
-                ->name('offres.status');
-
-            // Reset Views - Réinitialiser les vues
-            Route::post('offres/{offre}/reset-views', [OffreController::class, 'resetViews'])
-                ->name('offres.reset-views');
+            // Profils publics
+            Route::get('profils-publics', [PublicProfileController::class, 'index'])
+                ->name('profils-publics.index');
+            Route::get('profils-publics/{etudiant}/cv', [PublicProfileController::class, 'downloadCv'])
+                ->name('profils-publics.download-cv');
+            Route::get('profils-publics/{etudiant}/lettre', [PublicProfileController::class, 'viewLettre'])
+                ->name('profils-publics.lettre');
+            Route::patch('profils-publics/{etudiant}/toggle-lettre', [PublicProfileController::class, 'toggleLettre'])
+                ->name('profils-publics.toggle-lettre');
+                
+            Route::resource('entretiens', EntretienController::class);
         });
 
         /*
-|--------------------------------------------------------------------------
-| Routes pour les candidatures
-|--------------------------------------------------------------------------
-*/
+        |--------------------------------------------------------------------------
+        | Routes réservées aux ÉTUDIANTS uniquement
+        |--------------------------------------------------------------------------
+        */
+        Route::middleware('role:etudiant')->group(function () {
 
-        Route::prefix('candidatures')
-            ->name('candidatures.')
-            ->controller(CandidatureController::class)
-            ->group(function () {
+            // Mon profil
+            Route::get('mon-profil', [MonProfilController::class, 'index'])
+                ->name('mon-profil.index');
+            Route::patch('mon-profil', [MonProfilController::class, 'update'])
+                ->name('mon-profil.update');
 
-                // Routes publiques (avec filtrage dans le contrôleur)
-                Route::get('/', 'index')->name('index');
-                Route::get('/export', 'export')->name('export');
-                Route::get('/stats', 'stats')->name('stats');
+            // Compétences du profil
+            Route::post('mon-profil/competences', [MonProfilController::class, 'ajouterCompetence'])
+                ->name('mon-profil.competences.store');
+            Route::patch('mon-profil/competences/{competence}', [MonProfilController::class, 'updateCompetence'])
+                ->name('mon-profil.competences.update');
+            Route::delete('mon-profil/competences/{competence}', [MonProfilController::class, 'retirerCompetence'])
+                ->name('mon-profil.competences.destroy');
 
-                // Routes protégées par middleware
-                Route::middleware(['check.candidature.access'])->group(function () {
+            // Visibilité
+            Route::patch('mon-profil/toggle-cv', [MonProfilController::class, 'toggleCvPublic'])
+                ->name('mon-profil.toggle-cv');
+            Route::patch('mon-profil/toggle-lettre', [MonProfilController::class, 'toggleLettrePublic'])
+                ->name('mon-profil.toggle-lettre');
 
-                    // Consultation
-                    Route::get('{candidature}', 'show')->name('show');
-                    Route::get('{candidature}/cv', 'downloadCv')->name('download-cv');
-                    Route::get('{candidature}/history', 'history')->name('history');
-
-                    // Modifications
-                    Route::patch('{candidature}/status', 'updateStatus')->name('status');
-                    Route::delete('{candidature}', 'destroy')->name('destroy');
-
-                    // Actions rapides
-                    Route::post('{candidature}/accept', 'accept')->name('accept');
-                    Route::post('{candidature}/reject', 'reject')->name('reject');
-                    Route::post('{candidature}/pending', 'pending')->name('pending');
-
-                    // Notes
-                    Route::post('{candidature}/note', 'addNote')->name('add-note');
-                });
-            });
+            // Favoris
+            Route::get('favoris', [FavoriController::class, 'index'])->name('favoris.index');
+            Route::post('favoris', [FavoriController::class, 'store'])->name('favoris.store');
+            Route::delete('favoris/{favori}', [FavoriController::class, 'destroy'])->name('favoris.destroy');
+        });
     });

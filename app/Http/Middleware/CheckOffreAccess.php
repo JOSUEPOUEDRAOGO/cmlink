@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use App\Models\Entreprise\Offre;
 use App\Models\Entreprise\Entreprise;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
@@ -55,10 +56,18 @@ class CheckOffreAccess
             abort(400, 'Offre non spécifiée.');
         }
 
-        // Récupérer l'offre
-        $offre = Offre::with('entreprise')->find($offreId);
+        // Récupérer l'offre de manière robuste
+        if ($offreId instanceof Offre) {
+            $offre = $offreId;
+        } elseif ($offreId instanceof Collection) {
+            $offre = $offreId->first(fn ($item) => $item instanceof Offre);
+        } elseif (is_array($offreId)) {
+            $offre = collect($offreId)->first(fn ($item) => $item instanceof Offre);
+        } else {
+            $offre = Offre::find($offreId);
+        }
 
-        if (!$offre) {
+        if (!$offre || !$offre instanceof Offre) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
@@ -69,12 +78,14 @@ class CheckOffreAccess
             abort(404, 'Offre non trouvée.');
         }
 
+        $offreEntrepriseId = $offre->getAttribute('entreprise_id');
+
         // Log pour debug (optionnel)
         Log::info('CheckOffreAccess', [
             'user_id' => $user->id,
             'user_type' => $user->account_type,
             'offre_id' => $offreId,
-            'offre_entreprise_id' => $offre->entreprise_id,
+            'offre_entreprise_id' => $offreEntrepriseId,
         ]);
 
         // ADMIN : accès total
@@ -100,7 +111,7 @@ class CheckOffreAccess
                 abort(403, $error);
             }
 
-            if ($offre->entreprise_id !== $entreprise->id) {
+            if ($offreEntrepriseId !== $entreprise->id) {
                 $error = 'Vous n\'avez pas accès à cette offre. Vous ne pouvez gérer que vos propres offres.';
 
                 if ($request->expectsJson()) {
@@ -109,7 +120,7 @@ class CheckOffreAccess
                         'message' => $error,
                         'offre_id' => $offreId,
                         'votre_entreprise_id' => $entreprise->id,
-                        'offre_entreprise_id' => $offre->entreprise_id,
+                        'offre_entreprise_id' => $offreEntrepriseId,
                     ], 403);
                 }
 

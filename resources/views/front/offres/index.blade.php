@@ -5,6 +5,12 @@
 @section('content')
     @include('front.partials.header')
 
+    @php
+        $etudiant = (auth()->check() && auth()->user()->account_type === 'etudiant')
+            ? auth()->user()->etudiant
+            : null;
+    @endphp
+
     <section class="offers-page-section" id="offersPage">
         <div class="container">
 
@@ -13,12 +19,8 @@
                     <i class="bi bi-search-heart"></i>
                     Opportunités disponibles
                 </span>
-
-                <h1>Trouvez l’offre qui correspond à votre ambition</h1>
-
-                <p>
-                    Explorez les stages et emplois publiés par les entreprises partenaires de Cmlink.
-                </p>
+                <h1>Trouvez l'offre qui correspond à votre ambition</h1>
+                <p>Explorez les stages et emplois publiés par les entreprises partenaires de Cmlink.</p>
             </div>
 
             <form method="GET" action="{{ route('front.offres.index') }}" class="offers-filter-card">
@@ -28,32 +30,28 @@
                         <input type="text" name="q" value="{{ request('q') }}" placeholder="Titre, entreprise, mot-clé...">
                     </div>
                 </div>
-
                 <div class="filter-field">
                     <select name="type">
                         <option value="">Tous les types</option>
-                        <option value="stage" @selected(request('type') === 'stage')>Stage</option>
+                        <option value="stage"  @selected(request('type') === 'stage')>Stage</option>
                         <option value="emploi" @selected(request('type') === 'emploi')>Emploi</option>
                     </select>
                 </div>
-
                 <div class="filter-field">
                     <select name="categorie">
                         <option value="">Toutes les catégories</option>
                         @foreach($categories as $categorie)
-                            <option value="{{ $categorie->id }}" @selected((string) request('categorie') === (string) $categorie->id)>
+                            <option value="{{ $categorie->id }}"
+                                @selected((string) request('categorie') === (string) $categorie->id)>
                                 {{ $categorie->nom }}
                             </option>
                         @endforeach
                     </select>
                 </div>
-
                 <div class="filter-actions">
                     <button type="submit" class="filter-submit">
-                        <i class="bi bi-sliders"></i>
-                        Filtrer
+                        <i class="bi bi-sliders"></i> Filtrer
                     </button>
-
                     <a href="{{ route('front.offres.index') }}" class="filter-reset">
                         Réinitialiser
                     </a>
@@ -70,26 +68,31 @@
             <div class="offers-page-grid">
                 @forelse($offres as $offre)
                     @php
-                        $isStage = $offre->type === 'stage';
+                        $isStage   = $offre->type === 'stage';
                         $typeLabel = $isStage ? 'Stage' : 'Emploi';
                         $typeClass = $isStage ? 'is-stage' : 'is-emploi';
-                        $typeIcon = $isStage ? 'bi-mortarboard' : 'bi-briefcase';
+                        $typeIcon  = $isStage ? 'bi-mortarboard' : 'bi-briefcase';
+                        $estFavori = $etudiant
+                            ? $etudiant->favoris->contains('offre_id', $offre->id)
+                            : false;
+                        $favori = $estFavori
+                            ? $etudiant->favoris->firstWhere('offre_id', $offre->id)
+                            : null;
                     @endphp
 
                     <article class="offer-list-card {{ $typeClass }}">
+
                         <div class="offer-list-top">
                             <div class="company-avatar">
                                 {{ strtoupper(substr($offre->entreprise->nom ?? 'C', 0, 1)) }}
                             </div>
-
                             <div>
                                 <div class="company-name">
                                     {{ $offre->entreprise->nom ?? 'Entreprise' }}
                                 </div>
-
                                 <div class="offer-small-info">
                                     <i class="bi bi-clock"></i>
-                                    Publiée récemment
+                                    {{ $offre->created_at->diffForHumans() }}
                                 </div>
                             </div>
                         </div>
@@ -97,22 +100,33 @@
                         <div class="offer-type-badge">
                             <i class="bi {{ $typeIcon }}"></i>
                             {{ $typeLabel }}
+                            @if($offre->teletravail)
+                                &nbsp;·&nbsp; <i class="bi bi-house"></i> Télétravail
+                            @endif
                         </div>
 
-                        <h2 class="offer-list-title">
-                            {{ $offre->titre }}
-                        </h2>
+                        <h2 class="offer-list-title">{{ $offre->titre }}</h2>
 
                         <div class="offer-list-meta">
                             <span>
                                 <i class="bi bi-geo-alt"></i>
                                 {{ $offre->localisation ?: 'Localisation non précisée' }}
                             </span>
-
                             <span>
                                 <i class="bi bi-grid"></i>
                                 {{ $offre->categorie?->nom ?: 'Catégorie non précisée' }}
                             </span>
+                            @if($offre->salaire_min || $offre->salaire_max)
+                                <span>
+                                    <i class="bi bi-cash"></i>
+                                    @if($offre->salaire_min && $offre->salaire_max)
+                                        {{ number_format($offre->salaire_min, 0, ',', ' ') }}
+                                        – {{ number_format($offre->salaire_max, 0, ',', ' ') }} MAD
+                                    @elseif($offre->salaire_min)
+                                        Dès {{ number_format($offre->salaire_min, 0, ',', ' ') }} MAD
+                                    @endif
+                                </span>
+                            @endif
                         </div>
 
                         <div class="offer-list-footer">
@@ -126,11 +140,34 @@
                                 @endif
                             </div>
 
-                            <a href="{{ route('front.offres.show', $offre) }}" class="view-offer-btn">
-                                Voir l’offre
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
+                            <div class="offer-actions">
+                                {{-- Bouton favori --}}
+                                @if($etudiant)
+                                    <form action="{{ $estFavori
+                                        ? route('admin.favoris.destroy', $favori)
+                                        : route('admin.favoris.store') }}"
+                                        method="POST">
+                                        @csrf
+                                        @if($estFavori)
+                                            @method('DELETE')
+                                        @else
+                                            <input type="hidden" name="offre_id" value="{{ $offre->id }}">
+                                        @endif
+                                        <button type="submit"
+                                            class="favori-btn {{ $estFavori ? 'is-saved' : '' }}"
+                                            title="{{ $estFavori ? 'Retirer des favoris' : 'Sauvegarder cette offre' }}">
+                                            <i class="bi bi-bookmark{{ $estFavori ? '-fill' : '' }}"></i>
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <a href="{{ route('front.offres.show', $offre) }}" class="view-offer-btn">
+                                    Voir l'offre
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
                         </div>
+
                     </article>
                 @empty
                     <div class="empty-offers-box">
@@ -220,9 +257,7 @@
             margin-bottom: 8px;
         }
 
-        .filter-input-icon {
-            position: relative;
-        }
+        .filter-input-icon { position: relative; }
 
         .filter-input-icon i {
             position: absolute;
@@ -245,9 +280,7 @@
             font-weight: 600;
         }
 
-        .filter-search input {
-            padding-left: 42px;
-        }
+        .filter-search input { padding-left: 42px; }
 
         .filter-field input:focus,
         .filter-field select:focus {
@@ -461,6 +494,12 @@
             gap: 14px;
         }
 
+        .offer-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .deadline {
             display: flex;
             align-items: center;
@@ -490,6 +529,38 @@
             transform: translateY(-1px);
         }
 
+        .favori-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid rgba(30, 74, 118, 0.18);
+            background: #ffffff;
+            color: #1e4a76;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .favori-btn:hover {
+            background: rgba(30, 74, 118, 0.08);
+            transform: scale(1.1);
+        }
+
+        .favori-btn.is-saved {
+            background: #1e4a76;
+            color: #ffffff;
+            border-color: #1e4a76;
+        }
+
+        .favori-btn.is-saved:hover {
+            background: #c0392b;
+            border-color: #c0392b;
+        }
+
         .empty-offers-box {
             grid-column: 1 / -1;
             text-align: center;
@@ -506,73 +577,52 @@
             margin-bottom: 14px;
         }
 
-        .empty-offers-box h3 {
-            color: #0c2e44;
-            font-weight: 900;
-        }
+        .empty-offers-box h3 { color: #0c2e44; font-weight: 900; }
+        .empty-offers-box p  { color: #557c9c; margin: 0; }
 
-        .empty-offers-box p {
-            color: #557c9c;
-            margin: 0;
-        }
-
-        .offers-pagination {
-            margin-top: 38px;
-        }
+        .offers-pagination { margin-top: 38px; }
 
         @media (max-width: 1180px) {
             .offers-filter-card {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
-
-            .filter-actions {
-                grid-column: 1 / -1;
-            }
-
+            .filter-actions { grid-column: 1 / -1; }
             .offers-page-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
         @media (max-width: 720px) {
-            .offers-page-section {
-                padding: 62px 0;
-            }
-
+            .offers-page-section { padding: 62px 0; }
             .offers-filter-card {
                 grid-template-columns: 1fr;
                 padding: 18px;
                 border-radius: 24px;
             }
-
             .filter-actions {
                 flex-direction: column;
                 align-items: stretch;
             }
-
             .filter-submit,
-            .filter-reset {
-                width: 100%;
-            }
-
+            .filter-reset { width: 100%; }
             .offers-page-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
-
             .offer-list-card {
                 min-height: auto;
                 padding: 22px;
                 border-radius: 26px;
             }
-
             .offer-list-footer {
                 flex-direction: column;
                 align-items: stretch;
             }
-
+            .offer-actions {
+                justify-content: space-between;
+            }
             .view-offer-btn {
-                width: 100%;
+                flex: 1;
                 justify-content: center;
             }
         }
@@ -581,19 +631,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const section = document.getElementById('offersPage');
-
             if (!section) return;
-
             const observer = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
                     if (entry.isIntersecting) {
                         section.classList.add('is-visible');
                     }
                 });
-            }, {
-                threshold: 0.15
-            });
-
+            }, { threshold: 0.15 });
             observer.observe(section);
         });
     </script>

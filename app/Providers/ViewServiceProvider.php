@@ -2,18 +2,22 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
 use App\Models\Referentiel\Categorie;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class ViewServiceProvider extends ServiceProvider
 {
     public function boot()
     {
         View::composer('*', function ($view) {
-            $frontCategories = Categorie::withCount('offres')
-                ->orderBy('nom')
-                ->get();
+            try {
+                $frontCategories = Categorie::withCount('offres')
+                    ->orderBy('nom')
+                    ->get();
+            } catch (\Throwable $e) {
+                $frontCategories = collect();
+            }
 
             $view->with('frontCategories', $frontCategories);
         });

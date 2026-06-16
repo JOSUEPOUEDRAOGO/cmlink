@@ -3,57 +3,74 @@
 namespace App\Http\Controllers\Admin\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Admin\ParametreRequest;
 use App\Models\Admin\Parametre;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ParametreController extends Controller
 {
     public function index()
     {
-        $parametres = Parametre::latest()->paginate(15);
+        $groupes = Parametre::orderBy('groupe')->orderBy('label')
+            ->get()
+            ->groupBy('groupe');
 
-        return view('admin.parametres.index', compact('parametres'));
+        return view('admin.parametres.index', compact('groupes'));
     }
 
-    public function create()
+    public function update(Request $request)
     {
-        return view('admin.parametres.create');
-    }
+        $parametres = $request->input('parametres', []);
 
-    public function store(ParametreRequest $request)
-    {
-        Parametre::create($request->validated());
+        foreach ($parametres as $cle => $valeur) {
+            $parametre = Parametre::where('cle', $cle)->first();
+
+            if (!$parametre || $parametre->is_locked) continue;
+
+            // Convertir les booléens
+            if ($parametre->type === 'boolean') {
+                $valeur = $valeur ? '1' : '0';
+            }
+
+            $parametre->update(['valeur' => $valeur]);
+        }
+
+        // Gérer les booléens non cochés (non envoyés par le form)
+        $tousLesCles = $request->input('all_cles', []);
+        foreach ($tousLesCles as $cle) {
+            if (!array_key_exists($cle, $parametres)) {
+                $parametre = Parametre::where('cle', $cle)
+                    ->where('type', 'boolean')
+                    ->where('is_locked', false)
+                    ->first();
+                if ($parametre) {
+                    $parametre->update(['valeur' => '0']);
+                }
+            }
+        }
+
+        Cache::forget('parametres');
 
         return redirect()
             ->route('admin.parametres.index')
-            ->with('success', 'Paramètre créé avec succès.');
+            ->with('success', 'Paramètres enregistrés avec succès.');
     }
 
-    public function show(Parametre $parametre)
+    public function toggleMaintenance()
     {
-        return view('admin.parametres.show', compact('parametre'));
-    }
+        $p = Parametre::where('cle', 'mode_maintenance')->first();
+        if ($p) {
+            $p->update(['valeur' => $p->valeur === '1' ? '0' : '1']);
+        }
 
-    public function edit(Parametre $parametre)
-    {
-        return view('admin.parametres.edit', compact('parametre'));
-    }
+        Cache::forget('parametres');
 
-    public function update(ParametreRequest $request, Parametre $parametre)
-    {
-        $parametre->update($request->validated());
+        $msg = $p->valeur === '1'
+            ? 'Mode maintenance activé.'
+            : 'Mode maintenance désactivé.';
 
         return redirect()
             ->route('admin.parametres.index')
-            ->with('success', 'Paramètre mis à jour avec succès.');
-    }
-
-    public function destroy(Parametre $parametre)
-    {
-        $parametre->delete();
-
-        return redirect()
-            ->route('admin.parametres.index')
-            ->with('success', 'Paramètre supprimé avec succès.');
+            ->with('success', $msg);
     }
 }
