@@ -109,80 +109,85 @@
                 </a>
             </li>
             @endcan
+{{-- Mes postulations (étudiant uniquement) --}}
+@auth
+@if (auth()->user()->account_type === 'etudiant')
+<li class="sidebar-dropdown {{ request()->routeIs('admin.mes-candidatures.*') ? 'open' : '' }}">
+    <button type="button" class="sidebar-link sidebar-dropdown-toggle">
+        <i class="bi bi-folder2-open"></i>
+        <span>Mes postulations</span>
+        <i class="bi bi-chevron-down dropdown-arrow"></i>
+    </button>
+    <ul class="submenu">
 
-            {{-- Mes postulations (étudiant uniquement) --}}
-            @auth
-            @if (auth()->user()->account_type === 'etudiant')
-            <li class="sidebar-dropdown {{ request()->routeIs('admin.mes-candidatures.*') ? 'open' : '' }}">
-                <button type="button" class="sidebar-link sidebar-dropdown-toggle">
-                    <i class="bi bi-folder2-open"></i>
-                    <span>Mes postulations</span>
-                    <i class="bi bi-chevron-down dropdown-arrow"></i>
-                </button>
-                <ul class="submenu">
-                    <li>
-                        <a href="{{ route('admin.mes-candidatures.index') }}"
-                            class="{{ request()->routeIs('admin.mes-candidatures.index') ? 'active' : '' }}">
-                            <i class="bi bi-send-check"></i>
-                            <span>Toutes mes candidatures</span>
-                        </a>
-                    </li>
-                    <li>
-
-                    <li>
-                        <a href="{{ route('admin.mon-profil-public.index') }}"
-                            class="{{ request()->routeIs('admin.mon-profil-public.*') ? 'active' : '' }}">
-                            <i class="bi bi-person-badge"></i>
-                            <span>Mon profil public</span>
-                        </a>
-                    </li>
-
-
-                    <a href="{{ route('admin.mes-candidatures.cv') }}"
-                        class="{{ request()->routeIs('admin.mes-candidatures.cv') ? 'active' : '' }}">
-                        <i class="bi bi-file-earmark-person"></i>
-                        <span>Mes CV</span>
-                    </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.mes-candidatures.motivations') }}"
-                    class="{{ request()->routeIs('admin.mes-candidatures.motivations') ? 'active' : '' }}">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span>Mes motivations</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.favoris.index') }}"
-                    class="{{ request()->routeIs('admin.favoris.*') ? 'active' : '' }}">
-                    <i class="bi bi-bookmark-heart"></i>
-                    <span>Offres sauvegardées</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.mes-candidatures.acceptees') }}"
-                    class="{{ request()->routeIs('admin.mes-candidatures.acceptees') ? 'active' : '' }}">
-                    <i class="bi bi-patch-check"></i>
-                    <span>Acceptées</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.mes-candidatures.refusees') }}"
-                    class="{{ request()->routeIs('admin.mes-candidatures.refusees') ? 'active' : '' }}">
-                    <i class="bi bi-x-circle"></i>
-                    <span>Refusées</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('admin.mes-candidatures.attente') }}"
-                    class="{{ request()->routeIs('admin.mes-candidatures.attente') ? 'active' : '' }}">
-                    <i class="bi bi-hourglass-split"></i>
-                    <span>En attente</span>
-                </a>
-            </li>
-        </ul>
+        <li>
+            <a href="{{ route('admin.mes-candidatures.index') }}"
+                class="{{ request()->routeIs('admin.mes-candidatures.index') ? 'active' : '' }}">
+                <i class="bi bi-send-check"></i>
+                <span>Toutes mes candidatures</span>
+            </a>
         </li>
-        @endif
-        @endauth
+
+        <li>
+            <a href="{{ route('admin.mon-profil-public.index') }}"
+                class="{{ request()->routeIs('admin.mon-profil-public.*') ? 'active' : '' }}">
+                <i class="bi bi-person-badge"></i>
+                <span>Mon profil public</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ route('admin.mes-candidatures.cv') }}"
+                class="{{ request()->routeIs('admin.mes-candidatures.cv') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-person"></i>
+                <span>Mes CV</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ route('admin.mes-candidatures.motivations') }}"
+                class="{{ request()->routeIs('admin.mes-candidatures.motivations') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Mes motivations</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ route('admin.favoris.index') }}"
+                class="{{ request()->routeIs('admin.favoris.*') ? 'active' : '' }}">
+                <i class="bi bi-bookmark-heart"></i>
+                <span>Offres sauvegardées</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ route('admin.mes-candidatures.acceptees') }}"
+                class="{{ request()->routeIs('admin.mes-candidatures.acceptees') ? 'active' : '' }}">
+                <i class="bi bi-patch-check"></i>
+                <span>Acceptées</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ route('admin.mes-candidatures.refusees') }}"
+                class="{{ request()->routeIs('admin.mes-candidatures.refusees') ? 'active' : '' }}">
+                <i class="bi bi-x-circle"></i>
+                <span>Refusées</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ route('admin.mes-candidatures.attente') }}"
+                class="{{ request()->routeIs('admin.mes-candidatures.attente') ? 'active' : '' }}">
+                <i class="bi bi-hourglass-split"></i>
+                <span>En attente</span>
+            </a>
+        </li>
+
+    </ul>
+</li>
+@endif
+@endauth
 
         {{-- Candidatures reçues (admin + entreprise) --}}
         @can('manage candidatures')
