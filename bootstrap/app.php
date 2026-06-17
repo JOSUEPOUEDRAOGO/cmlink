@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -19,12 +20,21 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role'                   => RoleMiddleware::class,
-            'permission'             => PermissionMiddleware::class,
-            'role_or_permission'     => RoleOrPermissionMiddleware::class,
-            'check.offre.access'     => CheckOffreAccess::class,
-            'check.candidature.access' => CheckCandidatureAccess::class,
+            'role'                      => RoleMiddleware::class,
+            'permission'                => PermissionMiddleware::class,
+            'role_or_permission'        => RoleOrPermissionMiddleware::class,
+            'check.offre.access'        => CheckOffreAccess::class,
+            'check.candidature.access'  => CheckCandidatureAccess::class,
         ]);
+
+        // Faire confiance au proxy Railway pour détecter le HTTPS
+        $middleware->trustProxies(
+            at: '*',
+            headers: Request::HEADER_X_FORWARDED_FOR
+                | Request::HEADER_X_FORWARDED_HOST
+                | Request::HEADER_X_FORWARDED_PORT
+                | Request::HEADER_X_FORWARDED_PROTO
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
