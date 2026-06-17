@@ -60,8 +60,6 @@ require __DIR__.'/admin.php';
 require __DIR__.'/users.php';
 require __DIR__.'/roles.php';
 require __DIR__.'/sanctions.php';
-require __DIR__.'/sanctions.php';
-require __DIR__ . '/candidatures.php';
 require __DIR__ . '/candidatures.php';
 require __DIR__.'/publics.php';
 require __DIR__.'/api.php';

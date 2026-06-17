@@ -36,6 +36,7 @@ class Etudiant extends Model
         'niveau_etudes',
         'cv_path',
         'lettre_motivation',
+         'photo_publique',
     ];
 
     protected $casts = [
@@ -43,6 +44,7 @@ class Etudiant extends Model
         'lettre_public'  => 'boolean',
         'date_naissance' => 'date',
         'disponible_le'  => 'date',
+         'photo_publique' => 'boolean',
     ];
 
     public function user(): BelongsTo

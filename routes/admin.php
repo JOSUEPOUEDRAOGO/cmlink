@@ -107,16 +107,6 @@ Route::prefix('admin')
                     });
                 });
 
-            // Profils publics
-            Route::get('profils-publics', [PublicProfileController::class, 'index'])
-                ->name('profils-publics.index');
-            Route::get('profils-publics/{etudiant}/cv', [PublicProfileController::class, 'downloadCv'])
-                ->name('profils-publics.download-cv');
-            Route::get('profils-publics/{etudiant}/lettre', [PublicProfileController::class, 'viewLettre'])
-                ->name('profils-publics.lettre');
-            Route::patch('profils-publics/{etudiant}/toggle-lettre', [PublicProfileController::class, 'toggleLettre'])
-                ->name('profils-publics.toggle-lettre');
-                
             Route::resource('entretiens', EntretienController::class);
         });
 
@@ -151,5 +141,33 @@ Route::prefix('admin')
             Route::get('favoris', [FavoriController::class, 'index'])->name('favoris.index');
             Route::post('favoris', [FavoriController::class, 'store'])->name('favoris.store');
             Route::delete('favoris/{favori}', [FavoriController::class, 'destroy'])->name('favoris.destroy');
+
+
+
+
+
+Route::get('mon-profil-public', [PublicProfileController::class, 'monProfil'])
+        ->name('mon-profil-public.index');
+
+    Route::post('mon-profil-public/cv', [PublicProfileController::class, 'storeCv'])
+        ->name('mon-profil-public.cv.store');
+    Route::patch('mon-profil-public/cv/{cv}/principal', [PublicProfileController::class, 'setCvPrincipal'])
+        ->name('mon-profil-public.cv.principal');
+    Route::delete('mon-profil-public/cv/{cv}', [PublicProfileController::class, 'destroyCv'])
+        ->name('mon-profil-public.cv.destroy');
+
+    Route::patch('mon-profil-public/toggle-cv', [PublicProfileController::class, 'toggleMonCv'])
+        ->name('mon-profil-public.toggle-cv');
+    Route::patch('mon-profil-public/toggle-lettre', [PublicProfileController::class, 'toggleMaLettre'])
+        ->name('mon-profil-public.toggle-lettre');
+    Route::patch('mon-profil-public/toggle-photo', [PublicProfileController::class, 'togglePhoto'])
+        ->name('mon-profil-public.toggle-photo');
+
+
+
+
+
+
+
         });
     });
