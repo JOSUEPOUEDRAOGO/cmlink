@@ -162,12 +162,5 @@ Route::get('mon-profil-public', [PublicProfileController::class, 'monProfil'])
         ->name('mon-profil-public.toggle-lettre');
     Route::patch('mon-profil-public/toggle-photo', [PublicProfileController::class, 'togglePhoto'])
         ->name('mon-profil-public.toggle-photo');
-
-
-
-
-
-
-
         });
     });

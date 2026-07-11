@@ -8,6 +8,7 @@ use App\Http\Controllers\Front\EntrepriseFrontController;
 use App\Http\Controllers\Front\EtudiantFrontController;
 use App\Http\Controllers\Front\CandidatureController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Front\FooterController;
 
 $user = Auth::user();
 
@@ -54,6 +55,18 @@ Route::middleware(['auth', 'role:etudiant|admin'])->group(function () {
     Route::post('/offres/{offre}/postuler', [CandidatureController::class, 'store'])
         ->name('front.offres.postuler');
 });
+
+Route::controller(FooterController::class)->group(function () {
+
+    Route::get('/cgu', 'cgu')->name('cgu');
+
+    Route::get('/politique-de-confidentialite', 'pdc')->name('pdc');
+
+    Route::get('/support', 'support')->name('support');
+
+});
+Route::get('/legal/{slug}', [FooterController::class, 'show'])
+    ->name('legal.show');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
