@@ -104,7 +104,6 @@
                     Installer l'app
                 </button>
 
-
             </nav>
         </div>
     </div>
