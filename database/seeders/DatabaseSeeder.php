@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Database\Seeders\PageSectionSeeder;
+use Database\Seeders\AjouterPermissionsSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -26,6 +27,7 @@ class DatabaseSeeder extends Seeder
             LegalPageSeeder::class,
             PageSectionSeeder::class,
             DemoDataSeeder::class,
+            AjouterPermissionsSeeder::class,
         ]);
     }
 }
