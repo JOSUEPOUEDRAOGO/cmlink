@@ -10,47 +10,145 @@ class AjouterPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Vider le cache Spatie avant tout
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]
+            ->forgetCachedPermissions();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Permissions globales plateforme
+        |--------------------------------------------------------------------------
+        */
 
         $permissions = [
-            // Compétences
+
+            // Dashboard
+            'view admin dashboard',
+
+            // Administration
+            'manage users',
+            'manage roles',
+            'manage sanctions',
+
+            // Académique
+            'manage etudiants',
+            'manage entreprises',
+            'manage filieres',
             'manage competences',
 
-            // Entretiens
-            'manage entretiens',
-
-            // Favoris
-            'manage favoris',
-
-            // Profils publics
-            'view profils publics',
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate([
-                'name'       => $permission,
-                'guard_name' => 'web',
-            ]);
-        }
-
-        // Donner toutes les nouvelles permissions à l'admin
-        $admin = Role::findByName('admin');
-        $admin->givePermissionTo($permissions);
-
-        // Donner uniquement les permissions pertinentes à l'entreprise
-        $entreprise = Role::findByName('entreprise');
-        $entreprise->givePermissionTo([
+            // Recrutement
             'manage offres',
             'manage candidatures',
             'manage entretiens',
+
+            // Communication
+            'manage messages',
+
+            // Profils
             'view profils publics',
+
+            // Etudiant
+            'manage favoris',
+
+            // Administration avancée
+            'manage categories',
+            'manage pages',
+            'manage statistiques',
+            'manage parametres',
+            'manage signalements',
+        ];
+
+
+        foreach ($permissions as $permission) {
+
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'web',
+            ]);
+
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ROLES
+        |--------------------------------------------------------------------------
+        */
+
+
+        $admin = Role::firstOrCreate([
+            'name'=>'admin',
+            'guard_name'=>'web'
         ]);
 
-        // Permissions étudiant (nouveau rôle si pas encore créé)
-        $etudiant = Role::firstOrCreate(['name' => 'etudiant', 'guard_name' => 'web']);
-        $etudiant->givePermissionTo([
-            'manage favoris',
+
+        $entreprise = Role::firstOrCreate([
+            'name'=>'entreprise',
+            'guard_name'=>'web'
         ]);
+
+
+        $etudiant = Role::firstOrCreate([
+            'name'=>'etudiant',
+            'guard_name'=>'web'
+        ]);
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMIN
+        |--------------------------------------------------------------------------
+        */
+
+        $admin->syncPermissions(
+            Permission::all()
+        );
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ENTREPRISE
+        |--------------------------------------------------------------------------
+        */
+
+        $entreprise->syncPermissions([
+
+            'manage offres',
+            'manage candidatures',
+            'manage entretiens',
+            'manage messages',
+            'view profils publics',
+
+        ]);
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ETUDIANT
+        |--------------------------------------------------------------------------
+        */
+
+        $etudiant->syncPermissions([
+
+            'manage favoris',
+            'view profils publics',
+
+        ]);
+
+
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]
+            ->forgetCachedPermissions();
+
+
+        $this->command->info(
+            '✅ Rôles et permissions configurés correctement'
+        );
+
     }
 }
