@@ -43,14 +43,36 @@
     {{-- iziToast --}}
     <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
 
-    {{-- PWA Service Worker --}}
+    {{-- PWA --}}
     <script>
+        let deferredPrompt;
+
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function () {
+            window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js')
                     .then(reg => console.log('SW enregistré:', reg.scope))
                     .catch(err => console.log('SW erreur:', err));
             });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-btn')?.classList.remove('d-none');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('pwa-install-btn')?.classList.add('d-none');
+            deferredPrompt = null;
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                });
+            }
         }
     </script>
 
@@ -61,19 +83,19 @@
             | Header mobile
             |--------------------------------------------------------------------------
             */
-            const header     = document.querySelector('.front-header');
+            const header = document.querySelector('.front-header');
             const menuToggle = document.getElementById('frontMenuToggle');
-            const navLinks   = document.getElementById('frontNavLinks');
-            const dropdown   = document.querySelector('.nav-dropdown');
-            const dropdownBtn= document.querySelector('.nav-dropdown-btn');
+            const navLinks = document.getElementById('frontNavLinks');
+            const dropdown = document.querySelector('.nav-dropdown');
+            const dropdownBtn = document.querySelector('.nav-dropdown-btn');
 
             function closeMenu() {
-                if (navLinks)    navLinks.classList.remove('show');
-                if (menuToggle)  menuToggle.setAttribute('aria-expanded', 'false');
+                if (navLinks) navLinks.classList.remove('show');
+                if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
             }
 
             function closeDropdown() {
-                if (dropdown)    dropdown.classList.remove('open');
+                if (dropdown) dropdown.classList.remove('open');
                 if (dropdownBtn) dropdownBtn.setAttribute('aria-expanded', 'false');
             }
 

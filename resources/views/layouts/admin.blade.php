@@ -36,14 +36,36 @@
     <script src="{{ asset('assets/js/admin.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
 
-    {{-- PWA Service Worker --}}
+    {{-- PWA --}}
     <script>
+        let deferredPrompt;
+
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function () {
+            window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js')
                     .then(reg => console.log('SW enregistré:', reg.scope))
                     .catch(err => console.log('SW erreur:', err));
             });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-btn')?.classList.remove('d-none');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('pwa-install-btn')?.classList.add('d-none');
+            deferredPrompt = null;
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                });
+            }
         }
     </script>
 
