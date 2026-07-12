@@ -7,15 +7,14 @@
     <title>@yield('title', 'Cmlink')</title>
 
     <meta name="ngrok-skip-browser-warning" content="true">
+    <meta name="theme-color" content="#1e4a76">
 
-
+    {{-- Favicon --}}
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon/favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon/favicon-16x16.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('favicon/apple-touch-icon.png') }}">
     <link rel="manifest" href="{{ asset('favicon/site.webmanifest') }}">
-
-
 
     {{-- Font --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -27,8 +26,6 @@
 
     {{-- iziToast --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
-
-
 
     {{-- CSS Front --}}
     <link rel="stylesheet"
@@ -46,6 +43,17 @@
     {{-- iziToast --}}
     <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
 
+    {{-- PWA Service Worker --}}
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW enregistré:', reg.scope))
+                    .catch(err => console.log('SW erreur:', err));
+            });
+        }
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             /*
@@ -53,66 +61,46 @@
             | Header mobile
             |--------------------------------------------------------------------------
             */
-
-            const header = document.querySelector('.front-header');
+            const header     = document.querySelector('.front-header');
             const menuToggle = document.getElementById('frontMenuToggle');
-            const navLinks = document.getElementById('frontNavLinks');
-            const dropdown = document.querySelector('.nav-dropdown');
-            const dropdownBtn = document.querySelector('.nav-dropdown-btn');
+            const navLinks   = document.getElementById('frontNavLinks');
+            const dropdown   = document.querySelector('.nav-dropdown');
+            const dropdownBtn= document.querySelector('.nav-dropdown-btn');
 
             function closeMenu() {
-                if (navLinks) {
-                    navLinks.classList.remove('show');
-                }
-
-                if (menuToggle) {
-                    menuToggle.setAttribute('aria-expanded', 'false');
-                }
+                if (navLinks)    navLinks.classList.remove('show');
+                if (menuToggle)  menuToggle.setAttribute('aria-expanded', 'false');
             }
 
             function closeDropdown() {
-                if (dropdown) {
-                    dropdown.classList.remove('open');
-                }
-
-                if (dropdownBtn) {
-                    dropdownBtn.setAttribute('aria-expanded', 'false');
-                }
+                if (dropdown)    dropdown.classList.remove('open');
+                if (dropdownBtn) dropdownBtn.setAttribute('aria-expanded', 'false');
             }
 
             window.addEventListener('scroll', function() {
                 if (!header) return;
-
                 header.classList.toggle('scrolled', window.scrollY > 10);
             });
 
             if (menuToggle && navLinks) {
                 menuToggle.addEventListener('click', function() {
                     const isOpen = navLinks.classList.toggle('show');
-
                     menuToggle.setAttribute('aria-expanded', String(isOpen));
-
-                    if (!isOpen) {
-                        closeDropdown();
-                    }
+                    if (!isOpen) closeDropdown();
                 });
             }
 
             if (dropdownBtn && dropdown) {
                 dropdownBtn.addEventListener('click', function(event) {
                     if (window.innerWidth > 768) return;
-
                     event.preventDefault();
-
                     const isOpen = dropdown.classList.toggle('open');
-
                     dropdownBtn.setAttribute('aria-expanded', String(isOpen));
                 });
             }
 
             document.addEventListener('click', function(event) {
                 if (!header) return;
-
                 if (!header.contains(event.target)) {
                     closeMenu();
                     closeDropdown();
@@ -138,7 +126,6 @@
             | iziToast notifications
             |--------------------------------------------------------------------------
             */
-
             if (typeof iziToast !== 'undefined') {
                 iziToast.settings({
                     position: 'topRight',
