@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LegalPageSeeder::class,
             PageSectionSeeder::class,
+            DemoDataSeeder::class,
         ]);
     }
 }
