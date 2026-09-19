@@ -8,7 +8,6 @@ use App\Models\Academique\Etudiant;
 use App\Models\Entreprise\Entreprise;
 use App\Models\Entreprise\Offre;
 use App\Models\Recrutement\Candidature;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -48,13 +47,17 @@ class DashboardController extends Controller
             | UTILISATEURS ACTUELLEMENT EN LIGNE
             |--------------------------------------------------------------------------
             |
-            | Un utilisateur est considéré comme en ligne s'il a effectué
-            | une requête au cours des 5 dernières minutes.
+            | Un utilisateur est considéré comme en ligne uniquement s'il
+            | a envoyé un signal de présence au cours des 30 dernières secondes.
             |
             */
 
             'online' => User::whereNotNull('last_seen_at')
-                ->where('last_seen_at', '>=', now()->subMinutes(5))
+                ->where(
+                    'last_seen_at',
+                    '>=',
+                    now()->subSeconds(45)
+                )
                 ->count(),
         ];
 
@@ -163,7 +166,7 @@ class DashboardController extends Controller
             'Sep',
             'Oct',
             'Nov',
-            'Déc'
+            'Déc',
         ];
 
         /*

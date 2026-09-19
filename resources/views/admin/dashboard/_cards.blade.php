@@ -12,10 +12,7 @@
                             Actuellement en ligne
                         </p>
 
-                        <h3
-                            class="fw-bold mb-0"
-                            id="online-users-count"
-                        >
+                        <h3 class="fw-bold mb-0" id="online-users-count">
                             {{ $stats['online'] }}
                         </h3>
                     </div>
@@ -27,7 +24,7 @@
                 </div>
 
                 <div class="mt-2 small text-muted text-truncate">
-                    Actifs ces 5 dernières minutes
+                    Actifs ces 30 dernières secondes
                 </div>
 
             </div>
@@ -161,65 +158,77 @@
 </div>
 
 
-{{-- HEARTBEAT / ACTUALISATION DU COMPTEUR --}}
+{{-- =========================================================
+     REAL-TIME : UTILISATEURS EN LIGNE
+     Laravel Echo + Laravel Reverb
+     ========================================================= --}}
 @auth
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
 
-        const onlineCountElement =
-            document.getElementById('online-users-count');
+            const onlineCountElement =
+                document.getElementById('online-users-count');
 
-        if (!onlineCountElement) {
-            return;
-        }
-
-        const updateOnlineCount = async () => {
-
-            try {
-
-                const response = await fetch(
-                    @json(route('admin.dashboard.online-count')),
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                        },
-                        credentials: 'same-origin',
-                    }
-                );
-
-                if (!response.ok) {
-                    return;
-                }
-
-                const data = await response.json();
-
-                onlineCountElement.textContent = data.online;
-
-            } catch (error) {
-
-                console.warn(
-                    'Impossible de récupérer le nombre d’utilisateurs en ligne.',
-                    error
-                );
-
+            if (!onlineCountElement) {
+                return;
             }
-        };
 
-        // Première récupération immédiate
-        updateOnlineCount();
+            /*
+             * Vérification de Laravel Echo
+             */
+            if (!window.Echo) {
+                console.warn(
+                    'CMLINK : Laravel Echo n’est pas disponible.'
+                );
 
-        // Actualisation toutes les 30 secondes
-        setInterval(updateOnlineCount, 30000);
+                return;
+            }
 
-    });
-</script>
+            /*
+             * Écoute du canal privé réservé aux administrateurs.
+             *
+             * Le serveur Laravel diffuse :
+             *
+             * presence.updated
+             *
+             * avec :
+             *
+             * {
+             *     online: nombre
+             * }
+             */
+            window.Echo
+                .private('admin-presence')
+                .listen('.presence.updated', (event) => {
+
+                    if (
+                        typeof event === 'object' &&
+                        event !== null &&
+                        typeof event.online !== 'undefined'
+                    ) {
+                        onlineCountElement.textContent = event.online;
+
+                        console.log(
+                            'CMLINK : présence mise à jour →',
+                            event.online
+                        );
+                    }
+                });
+
+            console.log(
+                'CMLINK : écoute Reverb du canal admin-presence activée.'
+            );
+        });
+    </script>
 @endauth
+
+
 <style>
     .dashboard-stat-card {
         min-width: 0;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
     }
 
     .dashboard-stat-card:hover {
