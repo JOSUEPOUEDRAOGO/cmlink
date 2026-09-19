@@ -9,6 +9,8 @@ use App\Http\Controllers\Front\EtudiantFrontController;
 use App\Http\Controllers\Front\CandidatureController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Front\FooterController;
+use App\Http\Controllers\HeartbeatController;
+use App\Models\User;
 
 $user = Auth::user();
 
@@ -67,6 +69,20 @@ Route::controller(FooterController::class)->group(function () {
 });
 Route::get('/legal/{slug}', [FooterController::class, 'show'])
     ->name('legal.show');
+
+    Route::post('/heartbeat', HeartbeatController::class)
+    ->middleware('auth')
+    ->name('heartbeat');
+
+    Route::middleware('auth')->get('/admin/dashboard/online-count', function () {
+    $online = User::whereNotNull('last_seen_at')
+        ->where('last_seen_at', '>=', now()->subMinutes(5))
+        ->count();
+
+    return response()->json([
+        'online' => $online,
+    ]);
+})->name('admin.dashboard.online-count');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

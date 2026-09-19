@@ -9,7 +9,7 @@
                             Actuellement en ligne
                         </p>
 
-                        <h3 class="fw-bold mb-0">
+                        <h3 class="fw-bold mb-0" id="online-users-count">
                             {{ $stats['online'] }}
                         </h3>
                     </div>
@@ -97,3 +97,52 @@
         </div>
     </div>
 </div>
+@auth
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const onlineCountElement =
+            document.getElementById('online-users-count');
+
+        if (!onlineCountElement) {
+            return;
+        }
+
+        const updateOnlineCount = async () => {
+            try {
+                const response = await fetch(
+                    @json(route('admin.dashboard.online-count')),
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        credentials: 'same-origin',
+                    }
+                );
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                onlineCountElement.textContent = data.online;
+
+            } catch (error) {
+                console.warn(
+                    'Impossible de récupérer le nombre d’utilisateurs en ligne.',
+                    error
+                );
+            }
+        };
+
+        // Actualisation immédiate
+        updateOnlineCount();
+
+        // Puis toutes les 30 secondes
+        setInterval(updateOnlineCount, 30000);
+    });
+</script>
+@endauth
