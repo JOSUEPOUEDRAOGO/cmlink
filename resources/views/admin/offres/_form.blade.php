@@ -25,21 +25,52 @@
     </div>
 
     {{-- Entreprise --}}
-    <div class="col-md-6">
-        <label for="entreprise_id" class="form-label fw-semibold">Entreprise <span class="text-danger">*</span></label>
+    {{-- Entreprise --}}
+<div class="col-md-6">
+    <label for="entreprise_id" class="form-label fw-semibold">
+        Entreprise <span class="text-danger">*</span>
+    </label>
+
+    @if(auth()->user()->isAdmin())
+
+        {{-- ADMIN : peut choisir n'importe quelle entreprise --}}
         <select name="entreprise_id" id="entreprise_id"
             class="form-select rounded-3 @error('entreprise_id') is-invalid @enderror">
+
             <option value="">Sélectionner une entreprise</option>
+
             @foreach ($entreprises as $entreprise)
-                <option value="{{ $entreprise->id }}" @selected(old('entreprise_id', $offre->entreprise_id ?? ($entrepriseConnectee?->id ?? '')) == $entreprise->id)>
+                <option value="{{ $entreprise->id }}"
+                    @selected(
+                        old(
+                            'entreprise_id',
+                            $offre->entreprise_id ?? ''
+                        ) == $entreprise->id
+                    )>
                     {{ $entreprise->nom }}
                 </option>
             @endforeach
+
         </select>
-        @error('entreprise_id')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
+
+    @else
+
+        {{-- ENTREPRISE CONNECTÉE : uniquement sa propre entreprise --}}
+        <input type="hidden"
+            name="entreprise_id"
+            value="{{ $entrepriseConnectee?->id }}">
+
+        <input type="text"
+            class="form-control rounded-3"
+            value="{{ $entrepriseConnectee?->nom ?? 'Entreprise non associée' }}"
+            readonly>
+
+    @endif
+
+    @error('entreprise_id')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
 
     {{-- Catégorie --}}
     <div class="col-md-6">
