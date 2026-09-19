@@ -11,14 +11,19 @@ use Spatie\Permission\Traits\HasPermissions;
 use App\Models\AlerteOffre;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-
-
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles, HasPermissions;
 
     protected $fillable = [
-          'name', 'email', 'password', 'account_type', 'status', 'bio', 'avatar',
+        'name',
+        'email',
+        'password',
+        'account_type',
+        'status',
+        'bio',
+        'avatar',
+        'last_seen_at',
     ];
 
     protected $hidden = [
@@ -31,10 +36,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_seen_at' => 'datetime',
         ];
     }
 
     // 🔥 RELATIONS
+
     public function etudiant()
     {
         return $this->hasOne(\App\Models\Academique\Etudiant::class);
@@ -45,7 +52,13 @@ class User extends Authenticatable
         return $this->hasOne(\App\Models\Entreprise\Entreprise::class);
     }
 
+    public function alerteOffre(): HasOne
+    {
+        return $this->hasOne(AlerteOffre::class);
+    }
+
     // 🔥 HELPERS
+
     public function isAdmin(): bool
     {
         return $this->account_type === 'admin';
@@ -65,12 +78,4 @@ class User extends Authenticatable
     {
         return $this->status === 'actif';
     }
-
-
-
-public function alerteOffre(): HasOne
-{
-    return $this->hasOne(AlerteOffre::class);
-}
-
 }
