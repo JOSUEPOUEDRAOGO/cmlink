@@ -28,7 +28,6 @@ class DemoDataSeeder extends Seeder
         $entrepriseRole = Role::firstOrCreate(['name' => 'entreprise']);
 
 
-
         /*
         |--------------------------------------------------------------------------
         | FILIERES
@@ -60,44 +59,87 @@ class DemoDataSeeder extends Seeder
             );
 
             $idsFilieres[] = $filiere->id;
-
         }
-
 
 
         /*
         |--------------------------------------------------------------------------
-        | ADMINISTRATEUR
+        | ADMINISTRATEURS
         |--------------------------------------------------------------------------
         */
 
-        $admin = User::updateOrCreate(
-
-            [
-                'email' => 'josueservicedigital@gmail.com',
-            ],
+        $administrateurs = [
 
             [
                 'name' => 'Ouedraogo Josue Pawendtaore',
 
-                'password' => Hash::make(
-                    'Josueservicedigital@gmail.com'
-                ),
+                'email' => 'josueservicedigital@gmail.com',
 
-                'account_type' => 'admin',
-
-                'status' => 'actif',
-
-                'email_verified_at' => now(),
+                'password' => 'Josueservicedigital@gmail.com',
 
                 'bio' => 'Administrateur principal de la plateforme Cmlink.',
+            ],
 
-            ]
+            [
+                'name' => 'Ouedraogo Moussa David',
 
-        );
+                'email' => 'ouedraogomoussadavid@gmail.com',
 
-        $admin->syncRoles([$adminRole]);
+                'password' => '57mou27ssa22@',
 
+                'bio' => 'Administrateur de la plateforme Cmlink.',
+            ],
+
+            [
+                'name' => 'Wendkbr',
+
+                'email' => 'wendkbr617@gmail.com',
+
+                'password' => 'Wendk0617!',
+
+                'bio' => 'Administrateur de la plateforme Cmlink.',
+            ],
+
+            [
+                'name' => 'Windingou Daisaac Kabore',
+
+                'email' => 'windingoudaisaackabore@gmail.com',
+
+                'password' => 'Le76739159@',
+
+                'bio' => 'Administrateur de la plateforme Cmlink.',
+            ],
+
+        ];
+
+        foreach ($administrateurs as $data) {
+
+            $admin = User::updateOrCreate(
+
+                [
+                    'email' => $data['email'],
+                ],
+
+                [
+                    'name' => $data['name'],
+
+                    'password' => Hash::make(
+                        $data['password']
+                    ),
+
+                    'account_type' => 'admin',
+
+                    'status' => 'actif',
+
+                    'email_verified_at' => now(),
+
+                    'bio' => $data['bio'],
+                ]
+
+            );
+
+            $admin->syncRoles([$adminRole]);
+        }
 
 
         /*
@@ -177,6 +219,7 @@ class DemoDataSeeder extends Seeder
             ],
 
         ];
+
         foreach ($etudiants as $data) {
 
             $password = ucfirst($data['email']);
@@ -188,7 +231,7 @@ class DemoDataSeeder extends Seeder
                 ],
 
                 [
-                    'name' => $data['prenom'].' '.$data['nom'],
+                    'name' => $data['prenom'] . ' ' . $data['nom'],
 
                     'password' => Hash::make($password),
 
@@ -199,13 +242,11 @@ class DemoDataSeeder extends Seeder
                     'email_verified_at' => now(),
 
                     'bio' => 'Etudiant inscrit sur la plateforme Cmlink.',
-
                 ]
 
             );
 
             $user->syncRoles([$etudiantRole]);
-
 
 
             Etudiant::updateOrCreate(
@@ -230,7 +271,7 @@ class DemoDataSeeder extends Seeder
 
                     'ville' => $data['ville'],
 
-                    'disponible_le' => now()->addDays(rand(1,20)),
+                    'disponible_le' => now()->addDays(rand(1, 20)),
 
                     'niveau_etudes' => $data['niveau'],
 
@@ -245,14 +286,18 @@ class DemoDataSeeder extends Seeder
                 ]
 
             );
-
         }
-
 
 
         /*
         |--------------------------------------------------------------------------
         | ENTREPRISES
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT :
+        | ouedraogomoussadavid@gmail.com a été retiré d'ici car cette
+        | adresse est maintenant utilisée pour un administrateur.
+        |
         |--------------------------------------------------------------------------
         */
 
@@ -298,28 +343,9 @@ class DemoDataSeeder extends Seeder
 
             ],
 
-            [
-
-                'nom' => 'NovaTech Solutions',
-
-                'email' => 'ouedraogomoussadavid@gmail.com',
-
-                'telephone' => '0601234567',
-
-                'adresse' => 'Rabat',
-
-                'secteur' => 'Intelligence Artificielle',
-
-                'taille' => '11-50',
-
-                'site_web' => 'https://novatech.ma',
-
-                'description' => 'Cabinet d’innovation technologique, IA, Cloud et développement logiciel.'
-
-            ],
-
         ];
-                foreach ($entreprises as $data) {
+
+        foreach ($entreprises as $data) {
 
             $password = ucfirst($data['email']);
 
@@ -348,7 +374,6 @@ class DemoDataSeeder extends Seeder
             );
 
             $user->syncRoles([$entrepriseRole]);
-
 
 
             Entreprise::updateOrCreate(
@@ -380,19 +405,35 @@ class DemoDataSeeder extends Seeder
                 ]
 
             );
-
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | MESSAGE DE FIN
+        |--------------------------------------------------------------------------
+        */
+
         $this->command->info('');
-        $this->command->info('========================================');
-        $this->command->info('     CMLINK - DONNÉES DE DÉMONSTRATION');
-        $this->command->info('========================================');
-        $this->command->info('✔ 10 filières créées');
-        $this->command->info('✔ 1 administrateur créé');
-        $this->command->info('✔ 4 étudiants créés');
-        $this->command->info('✔ 3 entreprises créées');
-        $this->command->info('✔ Rôles Spatie attribués');
+
         $this->command->info('========================================');
 
+        $this->command->info(
+            '     CMLINK - DONNÉES DE DÉMONSTRATION'
+        );
+
+        $this->command->info('========================================');
+
+        $this->command->info('✔ 10 filières créées');
+
+        $this->command->info('✔ 4 administrateurs créés');
+
+        $this->command->info('✔ 4 étudiants créés');
+
+        $this->command->info('✔ 2 entreprises créées');
+
+        $this->command->info('✔ Rôles Spatie attribués');
+
+        $this->command->info('========================================');
     }
 }
