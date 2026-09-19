@@ -3,6 +3,33 @@
         <div class="card border-0 shadow-sm rounded-4 h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
+
+                    <div>
+                        <p class="text-muted mb-2">
+                            Actuellement en ligne
+                        </p>
+
+                        <h3 class="fw-bold mb-0">
+                            {{ $stats['online'] }}
+                        </h3>
+                    </div>
+
+                    <div class="fs-2 text-success">
+                        <i class="bi bi-circle-fill"></i>
+                    </div>
+
+                </div>
+
+                <div class="mt-3 small text-muted">
+                    Utilisateurs actifs ces 5 dernières minutes
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="text-muted mb-2">Étudiants inscrits</p>
                         <h3 class="fw-bold mb-0">{{ $stats['etudiants'] }}</h3>
@@ -63,7 +90,8 @@
                     </div>
                 </div>
                 <div class="mt-3 small text-muted">
-                    {{ $stats['candidatures_en_attente'] }} en attente • {{ $stats['candidatures_acceptees'] }} acceptées
+                    {{ $stats['candidatures_en_attente'] }} en attente • {{ $stats['candidatures_acceptees'] }}
+                    acceptées
                 </div>
             </div>
         </div>
