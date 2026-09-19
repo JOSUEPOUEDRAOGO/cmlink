@@ -4,11 +4,16 @@ body {
     overflow-x: hidden;
 }
 
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
 .admin-sidebar {
     position: fixed;
     top: 0;
     left: 0;
     width: 263px;
+    min-width: 263px;
     height: 100vh;
     background: #0b2e7a;
     color: #ffffff;
@@ -16,13 +21,30 @@ body {
     flex-direction: column;
     justify-content: space-between;
     z-index: 1000;
-    transition: transform 0.3s ease;
+
+    /*
+     * IMPORTANT :
+     * On ne cache plus le sidebar avec transform.
+     * On réduit simplement sa largeur.
+     */
+    transition: width 0.3s ease, min-width 0.3s ease;
+
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
+/* =========================================================
+   SIDEBAR RÉDUIT
+   ========================================================= */
+
 .admin-sidebar.collapsed {
-    transform: translateX(-100%);
+    width: 78px;
+    min-width: 78px;
 }
+
+/* =========================================================
+   CONTENU PRINCIPAL
+   ========================================================= */
 
 .main-content {
     margin-left: 263px;
@@ -30,13 +52,37 @@ body {
     transition: margin-left 0.3s ease;
 }
 
-.main-content.expanded {
-    margin-left: 0;
+.admin-sidebar.collapsed ~ .main-content {
+    margin-left: 78px;
 }
+
+/*
+ * Ancienne classe conservée pour éviter de casser
+ * d'éventuels éléments existants.
+ *
+ * Elle ne supprime plus le margin-left.
+ */
+.main-content.expanded {
+    margin-left: 78px;
+}
+
+/* =========================================================
+   PARTIE HAUTE DU SIDEBAR
+   ========================================================= */
 
 .sidebar-top {
     padding: 20px 16px;
+    transition: padding 0.3s ease;
 }
+
+.admin-sidebar.collapsed .sidebar-top {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+/* =========================================================
+   BRAND
+   ========================================================= */
 
 .brand-box {
     display: flex;
@@ -46,7 +92,21 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 16px;
     cursor: pointer;
+
+    transition:
+        padding 0.3s ease,
+        gap 0.3s ease,
+        justify-content 0.3s ease;
 }
+
+.admin-sidebar.collapsed .brand-box {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+}
+
+/* Logo C */
 
 .brand-icon {
     width: 36px;
@@ -62,6 +122,18 @@ body {
     font-size: 18px;
 }
 
+/* Texte Cmlink */
+
+.brand-text {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+
+    transition:
+        width 0.25s ease,
+        opacity 0.2s ease;
+}
+
 .brand-text h4 {
     margin: 0;
     font-size: 18px;
@@ -73,6 +145,17 @@ body {
     font-size: 13px;
     color: #cbd5e1;
 }
+
+/* Masquer uniquement le texte en mode réduit */
+
+.admin-sidebar.collapsed .brand-text {
+    width: 0;
+    opacity: 0;
+}
+
+/* =========================================================
+   MENU
+   ========================================================= */
 
 .sidebar-menu {
     list-style: none;
@@ -96,18 +179,78 @@ body {
     text-decoration: none;
     font-size: 15.5px;
     font-weight: 500;
-    transition: background 0.25s ease, color 0.25s ease;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        padding 0.3s ease,
+        gap 0.3s ease;
+
     border: none;
     background: transparent;
     cursor: pointer;
     text-align: left;
 }
 
+/* =========================================================
+   ICÔNES
+   ========================================================= */
+
 .sidebar-menu a i,
 .sidebar-link i {
     min-width: 20px;
+    width: 20px;
     font-size: 19px;
+    text-align: center;
+    flex-shrink: 0;
 }
+
+/* =========================================================
+   TEXTE DES LIENS
+   ========================================================= */
+
+/*
+ * On cible les textes placés directement dans les liens.
+ *
+ * Si ton Blade utilise :
+ *
+ * <a>
+ *     <i class="bi ..."></i>
+ *     <span>Tableau de bord</span>
+ * </a>
+ *
+ * le span sera masqué en mode réduit.
+ */
+
+.sidebar-menu a span,
+.sidebar-link span {
+    white-space: nowrap;
+    overflow: hidden;
+
+    transition:
+        width 0.25s ease,
+        opacity 0.2s ease;
+}
+
+/* Mode réduit */
+
+.admin-sidebar.collapsed .sidebar-menu a,
+.admin-sidebar.collapsed .sidebar-link {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+}
+
+.admin-sidebar.collapsed .sidebar-menu a span,
+.admin-sidebar.collapsed .sidebar-link span {
+    width: 0;
+    opacity: 0;
+}
+
+/* =========================================================
+   HOVER / ACTIVE
+   ========================================================= */
 
 .sidebar-menu a:hover,
 .sidebar-link:hover {
@@ -125,7 +268,14 @@ body {
     color: #111827;
 }
 
-/* DROPDOWN PAGES */
+/* =========================================================
+   DROPDOWN
+   ========================================================= */
+
+.sidebar-dropdown {
+    position: relative;
+}
+
 .sidebar-dropdown .submenu {
     display: none;
     list-style: none;
@@ -143,11 +293,22 @@ body {
 
 .dropdown-arrow {
     margin-left: auto;
-    transition: transform 0.25s ease;
+    transition:
+        transform 0.25s ease,
+        opacity 0.2s ease;
 }
 
 .sidebar-dropdown.open .dropdown-arrow {
     transform: rotate(180deg);
+}
+
+/*
+ * En mode réduit :
+ * - le texte est caché
+ * - la flèche est cachée
+ */
+.admin-sidebar.collapsed .dropdown-arrow {
+    display: none;
 }
 
 .sidebar-dropdown .submenu li {
@@ -176,9 +337,26 @@ body {
     color: #111827;
 }
 
-/* BOTTOM */
+/*
+ * Quand le sidebar est réduit, les sous-menus ne doivent
+ * pas rester ouverts et dépasser du petit sidebar.
+ */
+.admin-sidebar.collapsed .sidebar-dropdown .submenu {
+    display: none;
+}
+
+/* =========================================================
+   BOTTOM / STATUT
+   ========================================================= */
+
 .sidebar-bottom {
     padding: 16px;
+    transition: padding 0.3s ease;
+}
+
+.admin-sidebar.collapsed .sidebar-bottom {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .platform-status {
@@ -186,12 +364,23 @@ body {
     border-radius: 16px;
     padding: 16px;
     color: #ffffff;
+
+    transition:
+        padding 0.3s ease,
+        border-radius 0.3s ease;
 }
 
 .platform-status h6 {
     font-size: 14px;
     font-weight: 700;
     margin-bottom: 10px;
+
+    white-space: nowrap;
+    overflow: hidden;
+
+    transition:
+        width 0.25s ease,
+        opacity 0.2s ease;
 }
 
 .status-line {
@@ -204,21 +393,248 @@ body {
 .status-dot {
     width: 10px;
     height: 10px;
+    min-width: 10px;
     border-radius: 50%;
     background: #22c55e;
 }
 
-/* MOBILE */
+/*
+ * Statut en mode réduit
+ */
+
+.admin-sidebar.collapsed .platform-status {
+    padding: 12px 8px;
+    border-radius: 12px;
+}
+
+.admin-sidebar.collapsed .platform-status h6 {
+    width: 0;
+    opacity: 0;
+    margin: 0;
+}
+
+.admin-sidebar.collapsed .status-line {
+    justify-content: center;
+}
+
+.admin-sidebar.collapsed .status-line span:not(.status-dot) {
+    display: none;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @media (max-width: 992px) {
+
+    /*
+     * Sur mobile, on garde le comportement de tiroir.
+     * Le bouton du topbar permet de faire apparaître
+     * complètement le sidebar.
+     */
+
     .admin-sidebar {
+        width: 263px;
+        min-width: 263px;
         transform: translateX(-100%);
+        transition:
+            transform 0.3s ease,
+            width 0.3s ease;
     }
 
     .admin-sidebar.show {
         transform: translateX(0);
     }
 
-    .main-content {
+    /*
+     * Sur mobile, collapsed ne doit pas réduire
+     * le sidebar à 78px.
+     */
+    .admin-sidebar.collapsed {
+        width: 263px;
+        min-width: 263px;
+        transform: translateX(-100%);
+    }
+
+    .main-content,
+    .main-content.expanded,
+    .admin-sidebar.collapsed ~ .main-content {
+        margin-left: 0;
+    }
+}
+
+
+/* =========================================================
+   CMLINK — SIDEBAR FINAL
+   ========================================================= */
+
+.admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 263px;
+    min-width: 263px;
+    height: 100vh;
+
+    background: #0b2e7a;
+    color: #ffffff;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    z-index: 1050;
+
+    /*
+     * IMPORTANT :
+     * aucun translateX sur desktop
+     */
+    transform: none !important;
+
+    transition:
+        width 0.3s ease,
+        min-width 0.3s ease;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   SIDEBAR RÉDUIT
+   ========================================================= */
+
+.admin-sidebar.collapsed {
+    width: 78px;
+    min-width: 78px;
+
+    transform: none !important;
+}
+
+
+/* =========================================================
+   CONTENU
+   ========================================================= */
+
+.main-content {
+    margin-left: 263px;
+
+    min-height: 100vh;
+
+    transition: margin-left 0.3s ease;
+}
+
+.admin-sidebar.collapsed ~ .main-content {
+    margin-left: 78px;
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.admin-sidebar.collapsed .brand-box {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+}
+
+.admin-sidebar.collapsed .brand-text {
+    display: none;
+}
+
+
+/* =========================================================
+   LIENS
+   ========================================================= */
+
+.admin-sidebar.collapsed .sidebar-menu a,
+.admin-sidebar.collapsed .sidebar-link {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+}
+
+.admin-sidebar.collapsed .sidebar-menu a span,
+.admin-sidebar.collapsed .sidebar-link span {
+    display: none;
+}
+
+
+/* =========================================================
+   FLÈCHES DROPDOWN
+   ========================================================= */
+
+.admin-sidebar.collapsed .dropdown-arrow {
+    display: none;
+}
+
+
+/* =========================================================
+   SOUS-MENUS
+   ========================================================= */
+
+.admin-sidebar.collapsed .submenu {
+    display: none !important;
+}
+
+
+/* =========================================================
+   STATUT
+   ========================================================= */
+
+.admin-sidebar.collapsed .sidebar-bottom {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.admin-sidebar.collapsed .platform-status {
+    padding: 10px;
+}
+
+.admin-sidebar.collapsed .platform-status h6 {
+    display: none;
+}
+
+.admin-sidebar.collapsed .status-line {
+    justify-content: center;
+}
+
+.admin-sidebar.collapsed .status-line span:not(.status-dot) {
+    display: none;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 992px) {
+
+    .admin-sidebar {
+        width: 263px;
+        min-width: 263px;
+
+        transform: translateX(-100%) !important;
+
+        transition:
+            transform 0.3s ease;
+    }
+
+    .admin-sidebar.show {
+        transform: translateX(0) !important;
+    }
+
+    .admin-sidebar.collapsed {
+        width: 263px;
+        min-width: 263px;
+    }
+
+    .main-content,
+    .admin-sidebar.collapsed ~ .main-content {
         margin-left: 0;
     }
 }

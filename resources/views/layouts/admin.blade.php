@@ -16,41 +16,57 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon/favicon-16x16.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('favicon/apple-touch-icon.png') }}">
     <link rel="manifest" href="{{ asset('favicon/site.webmanifest') }}">
-@vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Vite --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     {{-- Bootstrap --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet">
 
     {{-- Bootstrap Icons --}}
-    <link rel="stylesheet"
+    <link
+        rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     {{-- Admin CSS --}}
-    <link rel="stylesheet"
+    <link
+        rel="stylesheet"
         href="{{ asset('assets/css/admin.css') }}">
 
     {{-- iziToast --}}
-    <link rel="stylesheet"
+    <link
+        rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
 </head>
 
 <body>
 
     {{-- =========================================================
-         SIDEBAR
+         ADMIN LAYOUT
     ========================================================== --}}
-    @include('layouts.partials.sidebar')
+    <div class="admin-layout">
+
+        {{-- =====================================================
+             SIDEBAR
+        ====================================================== --}}
+        @include('layouts.partials.sidebar')
 
 
-    {{-- =========================================================
-         CONTENU PRINCIPAL
-    ========================================================== --}}
-    <div class="main-content" id="mainContent">
+        {{-- =====================================================
+             CONTENU PRINCIPAL
+        ====================================================== --}}
+        <div class="main-content" id="mainContent">
 
-        @include('layouts.partials.navbar')
+            {{-- TOPBAR / NAVBAR --}}
+            @include('layouts.partials.navbar')
 
-        <div class="content-wrapper">
-            @yield('content')
+            {{-- CONTENU DES PAGES --}}
+            <div class="content-wrapper">
+                @yield('content')
+            </div>
+
         </div>
 
     </div>
