@@ -74,15 +74,19 @@ Route::get('/legal/{slug}', [FooterController::class, 'show'])
     ->middleware('auth')
     ->name('heartbeat');
 
-    Route::middleware('auth')->get('/admin/dashboard/online-count', function () {
-    $online = User::whereNotNull('last_seen_at')
-        ->where('last_seen_at', '>=', now()->subMinutes(5))
-        ->count();
+   Route::middleware(['auth', 'role:admin'])
+    ->get('/admin/dashboard/online-count', function () {
 
-    return response()->json([
-        'online' => $online,
-    ]);
-})->name('admin.dashboard.online-count');
+        $online = User::whereNotNull('last_seen_at')
+            ->where('last_seen_at', '>=', now()->subMinutes(5))
+            ->count();
+
+        return response()->json([
+            'online' => $online,
+        ]);
+
+    })
+    ->name('admin.dashboard.online-count');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

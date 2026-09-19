@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>@yield('title', 'Cmlink')</title>
 
     <meta name="ngrok-skip-browser-warning" content="true">
@@ -22,20 +23,26 @@
         rel="stylesheet">
 
     {{-- Bootstrap --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet">
 
     {{-- iziToast --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
 
     {{-- CSS Front --}}
     <link rel="stylesheet"
         href="{{ asset('assets/css/front.css') }}?v={{ filemtime(public_path('assets/css/front.css')) }}">
+
     <link rel="stylesheet"
         href="{{ asset('assets/css/front-header.css') }}?v={{ filemtime(public_path('assets/css/front-header.css')) }}">
 </head>
 
 <body>
+
     @yield('content')
 
     {{-- Bootstrap JS --}}
@@ -44,7 +51,9 @@
     {{-- iziToast --}}
     <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
 
-    {{-- PWA --}}
+    {{-- =========================================================
+         PWA
+    ========================================================== --}}
     <script>
         let deferredPrompt;
 
@@ -58,18 +67,26 @@
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
+
             deferredPrompt = e;
-            document.getElementById('pwa-install-btn')?.classList.remove('d-none');
+
+            document
+                .getElementById('pwa-install-btn')
+                ?.classList.remove('d-none');
         });
 
         window.addEventListener('appinstalled', () => {
-            document.getElementById('pwa-install-btn')?.classList.add('d-none');
+            document
+                .getElementById('pwa-install-btn')
+                ?.classList.add('d-none');
+
             deferredPrompt = null;
         });
 
         function installPWA() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
+
                 deferredPrompt.userChoice.then(() => {
                     deferredPrompt = null;
                 });
@@ -77,13 +94,18 @@
         }
     </script>
 
+    {{-- =========================================================
+         HEADER MOBILE + IZITOAST
+    ========================================================== --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
             /*
             |--------------------------------------------------------------------------
             | Header mobile
             |--------------------------------------------------------------------------
             */
+
             const header = document.querySelector('.front-header');
             const menuToggle = document.getElementById('frontMenuToggle');
             const navLinks = document.getElementById('frontNavLinks');
@@ -91,39 +113,76 @@
             const dropdownBtn = document.querySelector('.nav-dropdown-btn');
 
             function closeMenu() {
-                if (navLinks) navLinks.classList.remove('show');
-                if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+                if (navLinks) {
+                    navLinks.classList.remove('show');
+                }
+
+                if (menuToggle) {
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                }
             }
 
             function closeDropdown() {
-                if (dropdown) dropdown.classList.remove('open');
-                if (dropdownBtn) dropdownBtn.setAttribute('aria-expanded', 'false');
+                if (dropdown) {
+                    dropdown.classList.remove('open');
+                }
+
+                if (dropdownBtn) {
+                    dropdownBtn.setAttribute('aria-expanded', 'false');
+                }
             }
 
             window.addEventListener('scroll', function() {
                 if (!header) return;
-                header.classList.toggle('scrolled', window.scrollY > 10);
+
+                header.classList.toggle(
+                    'scrolled',
+                    window.scrollY > 10
+                );
             });
 
             if (menuToggle && navLinks) {
                 menuToggle.addEventListener('click', function() {
-                    const isOpen = navLinks.classList.toggle('show');
-                    menuToggle.setAttribute('aria-expanded', String(isOpen));
-                    if (!isOpen) closeDropdown();
+
+                    const isOpen =
+                        navLinks.classList.toggle('show');
+
+                    menuToggle.setAttribute(
+                        'aria-expanded',
+                        String(isOpen)
+                    );
+
+                    if (!isOpen) {
+                        closeDropdown();
+                    }
                 });
             }
 
             if (dropdownBtn && dropdown) {
                 dropdownBtn.addEventListener('click', function(event) {
-                    if (window.innerWidth > 768) return;
+
+                    if (window.innerWidth > 768) {
+                        return;
+                    }
+
                     event.preventDefault();
-                    const isOpen = dropdown.classList.toggle('open');
-                    dropdownBtn.setAttribute('aria-expanded', String(isOpen));
+
+                    const isOpen =
+                        dropdown.classList.toggle('open');
+
+                    dropdownBtn.setAttribute(
+                        'aria-expanded',
+                        String(isOpen)
+                    );
                 });
             }
 
             document.addEventListener('click', function(event) {
-                if (!header) return;
+
+                if (!header) {
+                    return;
+                }
+
                 if (!header.contains(event.target)) {
                     closeMenu();
                     closeDropdown();
@@ -131,6 +190,7 @@
             });
 
             window.addEventListener('resize', function() {
+
                 if (window.innerWidth > 768) {
                     closeMenu();
                     closeDropdown();
@@ -138,18 +198,22 @@
             });
 
             document.addEventListener('keydown', function(event) {
+
                 if (event.key === 'Escape') {
                     closeMenu();
                     closeDropdown();
                 }
             });
 
+
             /*
             |--------------------------------------------------------------------------
             | iziToast notifications
             |--------------------------------------------------------------------------
             */
+
             if (typeof iziToast !== 'undefined') {
+
                 iziToast.settings({
                     position: 'topRight',
                     timeout: 5000,
@@ -199,40 +263,69 @@
             }
         });
     </script>
+
+
+    {{-- =========================================================
+         CMLINK — HEARTBEAT UTILISATEUR
+    ========================================================== --}}
     @auth
-<script>
-    (() => {
-        const heartbeatUrl = @json(route('heartbeat'));
+        <script>
+            (() => {
 
-        const sendHeartbeat = async () => {
-            try {
-                await fetch(heartbeatUrl, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector(
-                            'meta[name="csrf-token"]'
-                        )?.getAttribute('content'),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({})
-                });
-            } catch (error) {
-                console.warn('Heartbeat CMLINK impossible :', error);
-            }
-        };
+                const heartbeatUrl = @json(route('heartbeat'));
 
-        // Premier signal immédiatement
-        sendHeartbeat();
+                const sendHeartbeat = async () => {
 
-        // Puis toutes les 30 secondes
-        setInterval(sendHeartbeat, 30000);
-    })();
-</script>
-@endauth
+                    try {
 
+                        await fetch(heartbeatUrl, {
+                            method: 'POST',
+
+                            headers: {
+                                'X-CSRF-TOKEN': document
+                                    .querySelector(
+                                        'meta[name="csrf-token"]'
+                                    )
+                                    ?.getAttribute('content'),
+
+                                'Accept': 'application/json',
+
+                                'Content-Type': 'application/json',
+                            },
+
+                            credentials: 'same-origin',
+
+                            body: JSON.stringify({})
+                        });
+
+                    } catch (error) {
+
+                        console.warn(
+                            'Heartbeat CMLINK impossible :',
+                            error
+                        );
+                    }
+                };
+
+
+                // Premier signal immédiatement
+                sendHeartbeat();
+
+
+                // Puis toutes les 30 secondes
+                setInterval(
+                    sendHeartbeat,
+                    30000
+                );
+
+            })();
+        </script>
+    @endauth
+
+
+    {{-- Scripts supplémentaires des pages --}}
     @stack('scripts')
+
 </body>
 
 </html>
